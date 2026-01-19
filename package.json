@@ -1,0 +1,44 @@
+{
+  "name": "event-management-system",
+  "version": "0.1.0",
+  "description": "Microservices-based Event Management System",
+  "scripts": {
+    "docker:up": "docker-compose up",
+    "docker:up:build": "docker-compose up --build",
+    "docker:down": "docker-compose down",
+    "docker:down:volumes": "docker-compose down -v",
+    "docker:logs": "docker-compose logs -f",
+    "docker:ps": "docker-compose ps",
+    "frontend:install": "cd frontend && npm install",
+    "frontend:dev": "cd frontend && npm run dev",
+    "frontend:build": "cd frontend && npm run build",
+    "frontend:start": "cd frontend && npm start",
+    "clean": "docker-compose down -v && docker system prune -f",
+    "build:all": "npm run build:discovery && npm run build:config && npm run build:gateway && npm run build:services && npm run frontend:build",
+    "build:discovery": "cd discovery && mvn clean package -DskipTests",
+    "build:config": "cd config-server && mvn clean package -DskipTests",
+    "build:gateway": "cd gateway && mvn clean package -DskipTests",
+    "build:services": "npm run build:event && npm run build:user && npm run build:booking",
+    "build:event": "cd backend/event-service && mvn clean package -DskipTests",
+    "build:user": "cd backend/user-service && mvn clean package -DskipTests",
+    "build:booking": "cd backend/booking-service && mvn clean package -DskipTests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HasithFernando/event-management-system.git"
+  },
+  "keywords": [
+    "microservices",
+    "spring-boot",
+    "nextjs",
+    "event-management",
+    "docker",
+    "eureka",
+    "api-gateway"
+  ],
+  "author": "Your Team",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
