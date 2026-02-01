@@ -1,7 +1,72 @@
 package com.nsbm.userservice.model;
 
-// TODO: Implement User entity
-// Example fields: id, name, email, password, role, etc.
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "users", uniqueConstraints = {
+    @UniqueConstraint(columnNames = "email")
+})
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class User {
-    // Add entity fields here
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @NotBlank(message = "First name is required")
+    @Size(min = 2, max = 50, message = "First name must be between 2 and 50 characters")
+    @Column(nullable = false)
+    private String firstName;
+
+    @NotBlank(message = "Last name is required")
+    @Size(min = 2, max = 50, message = "Last name must be between 2 and 50 characters")
+    @Column(nullable = false)
+    private String lastName;
+
+    @NotBlank(message = "Email is required")
+    @Email(message = "Email should be valid")
+    @Column(nullable = false, unique = true)
+    private String email;
+
+    @NotBlank(message = "Password is required")
+    @Size(min = 6, message = "Password must be at least 6 characters")
+    @Column(nullable = false)
+    private String password;
+
+    @Size(max = 20, message = "Phone number must be at most 20 characters")
+    private String phone;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Builder.Default
+    private Role role = Role.USER;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean enabled = true;
+
+    @CreationTimestamp
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
+
+    public String getFullName() {
+        return firstName + " " + lastName;
+    }
 }

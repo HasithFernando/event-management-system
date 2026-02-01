@@ -1,20 +1,52 @@
 import apiClient from '../lib/api';
+import { User, RegisterRequest, LoginRequest, AuthResponse, UpdateUserRequest } from '../types';
 
-// TODO: Implement user service API calls
 export const userService = {
-  getAllUsers: async () => {
-    // return apiClient.get('/api/users');
+  // Auth endpoints
+  register: async (data: RegisterRequest): Promise<AuthResponse> => {
+    const response = await apiClient.post<AuthResponse>('/users/auth/register', data);
+    return response.data;
   },
-  getUserById: async (id: string) => {
-    // return apiClient.get(`/api/users/${id}`);
+
+  login: async (data: LoginRequest): Promise<AuthResponse> => {
+    const response = await apiClient.post<AuthResponse>('/users/auth/login', data);
+    return response.data;
   },
-  createUser: async (data: any) => {
-    // return apiClient.post('/api/users', data);
+
+  // User CRUD endpoints
+  getAllUsers: async (): Promise<User[]> => {
+    const response = await apiClient.get<User[]>('/users');
+    return response.data;
   },
-  updateUser: async (id: string, data: any) => {
-    // return apiClient.put(`/api/users/${id}`, data);
+
+  getUserById: async (id: number): Promise<User> => {
+    const response = await apiClient.get<User>(`/users/${id}`);
+    return response.data;
   },
-  deleteUser: async (id: string) => {
-    // return apiClient.delete(`/api/users/${id}`);
+
+  getUserByEmail: async (email: string): Promise<User> => {
+    const response = await apiClient.get<User>(`/users/email/${email}`);
+    return response.data;
+  },
+
+  updateUser: async (id: number, data: UpdateUserRequest): Promise<User> => {
+    const response = await apiClient.put<User>(`/users/${id}`, data);
+    return response.data;
+  },
+
+  deleteUser: async (id: number): Promise<void> => {
+    await apiClient.delete(`/users/${id}`);
+  },
+
+  // Search
+  searchUsers: async (query: string): Promise<User[]> => {
+    const response = await apiClient.get<User[]>(`/users/search?query=${encodeURIComponent(query)}`);
+    return response.data;
+  },
+
+  // Utility
+  userExists: async (id: number): Promise<boolean> => {
+    const response = await apiClient.get<boolean>(`/users/${id}/exists`);
+    return response.data;
   },
 };

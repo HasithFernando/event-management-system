@@ -1,20 +1,62 @@
 import apiClient from '../lib/api';
+import { Booking, CreateBookingRequest } from '../types';
 
-// TODO: Implement booking service API calls
 export const bookingService = {
-  getAllBookings: async () => {
-    // return apiClient.get('/api/bookings');
+  // CRUD endpoints
+  getAllBookings: async (): Promise<Booking[]> => {
+    const response = await apiClient.get<Booking[]>('/bookings');
+    return response.data;
   },
-  getBookingById: async (id: string) => {
-    // return apiClient.get(`/api/bookings/${id}`);
+
+  getBookingById: async (id: number): Promise<Booking> => {
+    const response = await apiClient.get<Booking>(`/bookings/${id}`);
+    return response.data;
   },
-  createBooking: async (data: any) => {
-    // return apiClient.post('/api/bookings', data);
+
+  getBookingByReference: async (reference: string): Promise<Booking> => {
+    const response = await apiClient.get<Booking>(`/bookings/reference/${reference}`);
+    return response.data;
   },
-  updateBooking: async (id: string, data: any) => {
-    // return apiClient.put(`/api/bookings/${id}`, data);
+
+  createBooking: async (data: CreateBookingRequest): Promise<Booking> => {
+    const response = await apiClient.post<Booking>('/bookings', data);
+    return response.data;
   },
-  deleteBooking: async (id: string) => {
-    // return apiClient.delete(`/api/bookings/${id}`);
+
+  deleteBooking: async (id: number): Promise<void> => {
+    await apiClient.delete(`/bookings/${id}`);
+  },
+
+  // Query endpoints
+  getBookingsByUser: async (userId: number): Promise<Booking[]> => {
+    const response = await apiClient.get<Booking[]>(`/bookings/user/${userId}`);
+    return response.data;
+  },
+
+  getBookingsByEvent: async (eventId: number): Promise<Booking[]> => {
+    const response = await apiClient.get<Booking[]>(`/bookings/event/${eventId}`);
+    return response.data;
+  },
+
+  // Status management
+  confirmPayment: async (id: number): Promise<Booking> => {
+    const response = await apiClient.put<Booking>(`/bookings/${id}/confirm-payment`);
+    return response.data;
+  },
+
+  cancelBooking: async (id: number): Promise<Booking> => {
+    const response = await apiClient.put<Booking>(`/bookings/${id}/cancel`);
+    return response.data;
+  },
+
+  // Analytics
+  getEventRevenue: async (eventId: number): Promise<number> => {
+    const response = await apiClient.get<number>(`/bookings/event/${eventId}/revenue`);
+    return response.data;
+  },
+
+  getEventBookingsCount: async (eventId: number): Promise<number> => {
+    const response = await apiClient.get<number>(`/bookings/event/${eventId}/count`);
+    return response.data;
   },
 };

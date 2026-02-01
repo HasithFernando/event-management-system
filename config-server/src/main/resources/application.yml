@@ -1,15 +1,15 @@
 server:
   port: 8888
-
 spring:
   application:
     name: config-server
+  profiles:
+    active: native
   cloud:
     config:
       server:
         native:
-          search-locations: classpath:/config-repo
-
+          search-locations: file:/Users/macboookpro/Downloads/event-management-system/config-repo/
 eureka:
   client:
     serviceUrl:
