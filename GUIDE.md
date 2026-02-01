@@ -1,5 +1,7 @@
 # Event Management System - Complete Guide
 
+> 🚧 **Important:** This is a development version with critical security vulnerabilities. **DO NOT use in production** without implementing security measures. See Security Section below.
+
 ## Quick Start
 
 ### Prerequisites
@@ -19,6 +21,8 @@ docker-compose up --build
 - Frontend: http://localhost:3000
 - Eureka Dashboard: http://localhost:8761
 - API Gateway: http://localhost:8080
+
+> ⚠️ **Note:** All API endpoints are currently publicly accessible without authentication.
 
 ### Local Development Setup
 
@@ -194,20 +198,33 @@ Each service has its own configuration in `src/main/resources/application.yml`
 
 ### Project Status
 
-**Completed (100%):**
-- ✅ Infrastructure setup
-- ✅ Service structure
-- ✅ Docker configuration
-- ✅ API Gateway routing
-- ✅ Database configuration
+**✅ Completed:**
+- Infrastructure setup (100%)
+- Service structure (100%)
+- Docker configuration (100%)
+- API Gateway routing (100%)
+- Database configuration (100%)
+- Entity models and DTOs (100%)
+- Repository implementations (100%)
+- Business logic services (95%)
+- REST endpoints (90%)
+- Frontend pages and UI (95%)
+- Inter-service communication (90%)
 
-**To Implement (0%):**
-- 🔨 Entity models
-- 🔨 Repository implementations
-- 🔨 Business logic
-- 🔨 REST endpoints
-- 🔨 Frontend pages
-- 🔨 Authentication
+**❌ Critical Missing (Security):**
+- Password hashing/encryption (0%)
+- JWT authentication (0%)
+- Authorization controls (0%)
+- CSRF protection (0%)
+- Rate limiting (0%)
+- Security headers (0%)
+
+**🔨 To Enhance:**
+- Comprehensive testing
+- Email notifications
+- Payment integration
+- Advanced analytics
+- Admin dashboard
 
 ### Adding New Microservices
 
@@ -261,34 +278,61 @@ The architecture supports easy addition of new microservices. Here's how to add 
 - Provides shared functionality
 - Use for: Media, File Storage services
 
-### API Endpoints (To Implement)
+### API Endpoints (Implemented)
 
-**Event Service:**
+All endpoints are currently **publicly accessible** - authentication is not implemented.
+
+**User Service (`/api/users`):**
 ```
-GET    /api/events          # List all events
-GET    /api/events/{id}     # Get event
-POST   /api/events          # Create event
-PUT    /api/events/{id}     # Update event
-DELETE /api/events/{id}     # Delete event
+POST   /api/users/auth/register           # Register new user
+POST   /api/users/auth/login              # User login (no JWT returned)
+GET    /api/users                         # List all users
+GET    /api/users/{id}                    # Get user by ID
+GET    /api/users/email/{email}           # Get user by email
+PUT    /api/users/{id}                    # Update user
+DELETE /api/users/{id}                    # Delete user (unprotected!)
+PUT    /api/users/{id}/role               # Update role (unprotected!)
+PUT    /api/users/{id}/disable            # Disable user (unprotected!)
+PUT    /api/users/{id}/enable             # Enable user (unprotected!)
+GET    /api/users/search?query=           # Search users
+GET    /api/users/role/{role}             # Get users by role
 ```
 
-**User Service:**
+**Event Service (`/api/events`):**
 ```
-GET    /api/users           # List all users
-GET    /api/users/{id}      # Get user
-POST   /api/users           # Create user
-PUT    /api/users/{id}      # Update user
-DELETE /api/users/{id}      # Delete user
+POST   /api/events                        # Create event
+GET    /api/events                        # List all events
+GET    /api/events/{id}                   # Get event by ID
+PUT    /api/events/{id}                   # Update event
+DELETE /api/events/{id}                   # Delete event (unprotected!)
+GET    /api/events/published              # Get published events
+GET    /api/events/upcoming               # Get upcoming events
+GET    /api/events/featured               # Get featured events
+GET    /api/events/category/{category}    # Get by category
+GET    /api/events/organizer/{id}         # Get by organizer
+GET    /api/events/search?query=          # Search events
+PUT    /api/events/{id}/publish           # Publish event
+PUT    /api/events/{id}/cancel            # Cancel event
+POST   /api/events/{id}/reserve-seats     # Reserve seats
+POST   /api/events/{id}/release-seats     # Release seats
 ```
 
-**Booking Service:**
+**Booking Service (`/api/bookings`):**
 ```
-GET    /api/bookings        # List all bookings
-GET    /api/bookings/{id}   # Get booking
-POST   /api/bookings        # Create booking
-PUT    /api/bookings/{id}   # Update booking
-DELETE /api/bookings/{id}   # Delete booking
+POST   /api/bookings                      # Create booking
+GET    /api/bookings                      # List all bookings
+GET    /api/bookings/{id}                 # Get booking by ID
+GET    /api/bookings/reference/{ref}      # Get by reference
+DELETE /api/bookings/{id}                 # Delete booking (unprotected!)
+GET    /api/bookings/user/{userId}        # Get user's bookings
+GET    /api/bookings/event/{eventId}      # Get event's bookings
+PUT    /api/bookings/{id}/confirm-payment # Confirm payment
+PUT    /api/bookings/{id}/cancel          # Cancel booking
+GET    /api/bookings/event/{id}/revenue   # Get event revenue
+GET    /api/bookings/event/{id}/count     # Get booking count
 ```
+
+> ⚠️ **Security Warning:** All endpoints are publicly accessible. Anyone can delete events, users, or bookings.
 
 ### Building Services
 
@@ -438,8 +482,179 @@ docker system prune -f        # Clean up
 
 ---
 
-**Version:** 0.1.0  
-**Last Updated:** January 2026  
-**Status:** Ready for Development
+## Security Requirements
 
-This boilerplate provides everything needed to start building a production-grade event management system. Happy coding! 🚀
+### 🔴 Critical Security Issues
+
+Before using this application in any production or public-facing environment, you **MUST** implement:
+
+1. **Password Hashing**
+   ```java
+   // Add BCryptPasswordEncoder to UserService
+   private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+   
+   // In register method:
+   .password(passwordEncoder.encode(request.getPassword()))
+   
+   // In login method:
+   if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+       throw new IllegalStateException("Invalid credentials");
+   }
+   ```
+
+2. **JWT Authentication**
+   - Implement JWT token generation on login
+   - Add JWT validation filter
+   - Configure Spring Security
+   - Protect all endpoints with `@PreAuthorize`
+
+3. **Authorization**
+   ```java
+   @PreAuthorize("hasRole('ADMIN')")
+   @DeleteMapping("/{id}")
+   public ResponseEntity<Void> deleteUser(@PathVariable Long id)
+   
+   @PreAuthorize("isAuthenticated()")
+   @GetMapping
+   public ResponseEntity<List<UserDTO>> getAllUsers()
+   ```
+
+4. **Environment Secrets**
+   - Move all passwords to environment variables
+   - Use `.env` files (gitignored)
+   - Implement secrets management (Vault, AWS Secrets Manager)
+
+5. **Security Configuration**
+   ```java
+   @Configuration
+   @EnableWebSecurity
+   @EnableMethodSecurity
+   public class SecurityConfig {
+       // Configure HTTP security
+       // Add CSRF protection
+       // Configure CORS properly
+   }
+   ```
+
+6. **Update Dependencies**
+   ```bash
+   cd frontend
+   npm audit fix
+   npm install next@latest eslint@latest
+   ```
+
+### Additional Security Measures
+
+- Add rate limiting on login endpoints
+- Implement input validation and sanitization
+- Add security headers (HSTS, CSP, etc.)
+- Enable HTTPS in production
+- Implement request/response logging
+- Add intrusion detection
+- Regular security audits
+
+---
+
+## Testing Guide
+
+### Testing the API (Development Only)
+
+**Using curl:**
+
+```bash
+# Register a user
+curl -X POST http://localhost:8080/api/users/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"firstName":"John","lastName":"Doe","email":"john@example.com","password":"password123","phone":"1234567890"}'
+
+# Login
+curl -X POST http://localhost:8080/api/users/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"john@example.com","password":"password123"}'
+
+# Create event
+curl -X POST http://localhost:8080/api/events \
+  -H "Content-Type: application/json" \
+  -d '{"title":"Tech Conference","description":"Annual tech event","location":"Convention Center","startDateTime":"2026-03-15T09:00:00","endDateTime":"2026-03-15T17:00:00","category":"CONFERENCE","capacity":500,"price":50.00,"organizerId":1}'
+
+# List events
+curl http://localhost:8080/api/events
+```
+
+**Using Postman:**
+
+1. Import the API endpoints
+2. Set base URL: `http://localhost:8080`
+3. Create requests for each endpoint
+4. Test different scenarios
+
+### Running Tests
+
+```bash
+# Backend tests
+cd backend/user-service
+mvn test
+
+# Frontend tests  
+cd frontend
+npm test
+```
+
+---
+
+## Deployment Considerations
+
+### Pre-Deployment Checklist
+
+- [ ] Implement all security measures listed above
+- [ ] Update all dependencies to latest stable versions
+- [ ] Run security audit: `npm audit`, `mvn dependency:check`
+- [ ] Configure production database (not H2)
+- [ ] Set up proper environment variables
+- [ ] Enable HTTPS/TLS
+- [ ] Configure proper CORS origins
+- [ ] Set up logging and monitoring
+- [ ] Implement backup strategy
+- [ ] Load testing
+- [ ] Security penetration testing
+
+### Environment Variables Required
+
+```env
+# Database
+DB_HOST=
+DB_PORT=
+DB_NAME=
+DB_USER=
+DB_PASSWORD=
+
+# JWT
+JWT_SECRET=
+JWT_EXPIRATION=
+
+# Application
+APP_ENV=production
+CORS_ALLOWED_ORIGINS=
+
+# External Services
+EMAIL_SERVICE_API_KEY=
+PAYMENT_SERVICE_API_KEY=
+```
+
+---
+
+**Version:** 0.2.0-dev  
+**Last Updated:** February 2026  
+**Status:** Development - NOT Production Ready
+
+⚠️ **Important:** This application has critical security vulnerabilities. It is suitable for:
+- Learning microservices architecture
+- Development and testing
+- As a starter template (with security implementation)
+
+**NOT suitable for:**
+- Production deployment (without security fixes)
+- Public-facing applications
+- Handling real user data
+
+Implement all security measures before any production use. Happy (and secure) coding! 🔒🚀
