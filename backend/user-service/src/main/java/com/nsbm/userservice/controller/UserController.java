@@ -7,7 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,7 +15,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
-@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:8080"})
+@CrossOrigin(origins = { "http://localhost:3000", "http://localhost:8080" })
 public class UserController {
 
     private final UserService userService;
@@ -55,7 +55,6 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN') or @userSecurityService.isOwner(#id, authentication)")
     public ResponseEntity<UserDTO> updateUser(
             @PathVariable Long id,
             @Valid @RequestBody UpdateUserRequest request) {
@@ -64,7 +63,6 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
@@ -73,7 +71,6 @@ public class UserController {
     // ==================== Admin Endpoints ====================
 
     @PutMapping("/{id}/role")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserDTO> updateUserRole(
             @PathVariable Long id,
             @RequestParam Role role) {
@@ -82,14 +79,12 @@ public class UserController {
     }
 
     @PutMapping("/{id}/disable")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> disableUser(@PathVariable Long id) {
         userService.disableUser(id);
         return ResponseEntity.ok().build();
     }
 
     @PutMapping("/{id}/enable")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> enableUser(@PathVariable Long id) {
         userService.enableUser(id);
         return ResponseEntity.ok().build();

@@ -7,73 +7,55 @@ export default function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
 
   return (
-    <nav className="bg-white shadow-md">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          <div className="flex items-center">
-            <Link href="/" className="flex-shrink-0 flex items-center">
-              <span className="text-xl font-bold text-indigo-600">EventHub</span>
-            </Link>
-            <div className="hidden md:ml-6 md:flex md:space-x-4">
+    <nav>
+      {/* The nav > div rule in globals.css handles the flex container and space-between alignment */}
+      <div>
+        {/* Left Side: Brand/Logo */}
+        <Link href="/" className="hover-lift" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none' }}>
+          <span style={{ fontSize: '1.75rem' }}>🎫</span>
+          <h1 style={{
+            fontSize: '1.75rem',
+            margin: 0,
+            background: 'linear-gradient(135deg, var(--primary-600), var(--accent-600))',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent'
+          }}>
+            EventHub
+          </h1>
+        </Link>
+
+        {/* Right Side: Login or User Controls */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          {isAuthenticated ? (
+            <>
               <Link
-                href="/events"
-                className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-50"
+                href="/profile"
+                className="hover-lift"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  textDecoration: 'none',
+                  color: 'var(--text-secondary)',
+                  fontWeight: 600
+                }}
               >
-                Events
+                <span>👤</span>
+                <span className="hidden sm:inline">{user?.firstName}</span>
               </Link>
-              {isAuthenticated && (
-                <>
-                  <Link
-                    href="/bookings"
-                    className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-50"
-                  >
-                    My Bookings
-                  </Link>
-                  {(user?.role === 'ORGANIZER' || user?.role === 'ADMIN') && (
-                    <Link
-                      href="/events/create"
-                      className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-50"
-                    >
-                      Create Event
-                    </Link>
-                  )}
-                </>
-              )}
-            </div>
-          </div>
-          <div className="flex items-center">
-            {isAuthenticated ? (
-              <div className="flex items-center space-x-4">
-                <Link
-                  href="/profile"
-                  className="text-sm font-medium text-gray-700 hover:text-indigo-600"
-                >
-                  {user?.firstName} {user?.lastName}
-                </Link>
-                <button
-                  onClick={logout}
-                  className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700"
-                >
-                  Logout
-                </button>
-              </div>
-            ) : (
-              <div className="flex items-center space-x-4">
-                <Link
-                  href="/auth/login"
-                  className="text-sm font-medium text-gray-700 hover:text-indigo-600"
-                >
-                  Login
-                </Link>
-                <Link
-                  href="/auth/register"
-                  className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700"
-                >
-                  Register
-                </Link>
-              </div>
-            )}
-          </div>
+              <button
+                onClick={logout}
+                className="btn btn-secondary"
+                style={{ padding: '0.5rem 1.25rem' }}
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <Link href="/auth/login" className="btn btn-primary">
+              Login
+            </Link>
+          )}
         </div>
       </div>
     </nav>

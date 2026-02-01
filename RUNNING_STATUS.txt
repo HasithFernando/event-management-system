@@ -1,0 +1,324 @@
+# Event Management System - Running Status
+
+**Last Updated**: February 1, 2026 at 11:53 AM IST  
+**Status**: ✅ ALL SERVICES RUNNING
+
+---
+
+## 🚀 Current Running Services
+
+| Service | Port | Status | URL |
+|---------|------|--------|-----|
+| **Discovery Server (Eureka)** | 8761 | ✅ UP | http://localhost:8761 |
+| **Config Server** | 8888 | ✅ UP | http://localhost:8888 |
+| **API Gateway** | 8080 | ✅ UP | http://localhost:8080 |
+| **Event Service** | 8081 | ✅ UP | http://localhost:8081 |
+| **User Service** | 8082 | ✅ UP | http://localhost:8082 |
+| **Booking Service** | 8083 | ✅ UP | http://localhost:8083 |
+| **Frontend (Next.js)** | 3000 | ✅ UP | http://localhost:3000 |
+
+---
+
+## 🎯 Quick Access URLs
+
+- **Frontend Application**: http://localhost:3000
+- **Eureka Dashboard**: http://localhost:8761
+- **API Gateway**: http://localhost:8080
+
+---
+
+## 📝 Test Endpoints
+
+### Event Service (via Gateway)
+```bash
+# Health check
+curl http://localhost:8080/api/events/health
+
+# Get all events
+curl http://localhost:8080/api/events
+
+# Get published events
+curl http://localhost:8080/api/events/published
+
+# Get upcoming events
+curl http://localhost:8080/api/events/upcoming
+
+# Create an event
+curl -X POST http://localhost:8080/api/events \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Tech Conference 2026",
+    "description": "Annual technology conference",
+    "eventDate": "2026-03-15",
+    "startTime": "09:00:00",
+    "endTime": "17:00:00",
+    "location": "Convention Center",
+    "address": "123 Tech Street, Silicon Valley, CA",
+    "capacity": 500,
+    "price": 99.99,
+    "category": "TECHNOLOGY",
+    "organizerId": 1,
+    "organizerName": "Tech Events Inc"
+  }'
+```
+
+### User Service (via Gateway)
+```bash
+# Health check
+curl http://localhost:8080/api/users/health
+
+# Register a user
+curl -X POST http://localhost:8080/api/users/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "john.doe@example.com",
+    "password": "password123",
+    "phone": "1234567890"
+  }'
+
+# Login
+curl -X POST http://localhost:8080/api/users/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "john.doe@example.com",
+    "password": "password123"
+  }'
+
+# Get all users
+curl http://localhost:8080/api/users
+```
+
+### Booking Service (via Gateway)
+```bash
+# Health check
+curl http://localhost:8080/api/bookings/health
+
+# Get all bookings
+curl http://localhost:8080/api/bookings
+
+# Create a booking (requires existing user and event)
+curl -X POST http://localhost:8080/api/bookings \
+  -H "Content-Type: application/json" \
+  -d '{
+    "userId": 1,
+    "eventId": 1,
+    "numberOfTickets": 2
+  }'
+```
+
+---
+
+## 🎮 Control Commands
+
+### Start All Services
+```bash
+cd /Users/macboookpro/Downloads/event-management-system
+./start-all.sh
+```
+
+### Stop All Services
+```bash
+cd /Users/macboookpro/Downloads/event-management-system
+./stop-all.sh
+```
+
+### Check Service Status
+```bash
+# Quick status check
+for port in 8761 8888 8080 8081 8082 8083 3000; do
+  echo -n "Port $port: "
+  lsof -ti:$port > /dev/null 2>&1 && echo "✓ Running" || echo "✗ Not running"
+done
+```
+
+### View Logs
+```bash
+# View specific service log
+tail -f logs/event-service.log
+tail -f logs/user-service.log
+tail -f logs/booking-service.log
+tail -f logs/frontend.log
+
+# View all logs
+tail -f logs/*.log
+```
+
+---
+
+## 🔍 Service Health Checks
+
+### Via Gateway
+```bash
+curl http://localhost:8080/api/events/health
+curl http://localhost:8080/api/users/health
+curl http://localhost:8080/api/bookings/health
+```
+
+### Direct Service Access
+```bash
+curl http://localhost:8081/events/health
+curl http://localhost:8082/users/health
+curl http://localhost:8083/bookings/health
+```
+
+### Actuator Endpoints
+```bash
+curl http://localhost:8081/actuator/health
+curl http://localhost:8082/actuator/health
+curl http://localhost:8083/actuator/health
+```
+
+---
+
+## ⚙️ Service Dependencies
+
+### Discovery Server
+- **Must start first** - All other services depend on it
+- Wait ~30 seconds for full startup
+
+### Config Server
+- **Starts second** - Provides configuration to other services
+- Wait ~30 seconds for full startup
+
+### API Gateway
+- **Starts third** - Routes requests to backend services
+- Wait ~25 seconds for full startup
+
+### Business Services (Event, User, Booking)
+- Can start in parallel after infrastructure services
+- Wait ~15-20 seconds each for full startup
+
+### Frontend
+- Can start anytime after backend services are up
+- Requires backend to be healthy for full functionality
+
+---
+
+## 🐛 Troubleshooting
+
+### Service Not Starting
+```bash
+# Check if port is already in use
+lsof -ti:<port>
+
+# Kill process on port
+lsof -ti:<port> | xargs kill -9
+
+# Check logs for errors
+tail -100 logs/<service-name>.log | grep -i error
+```
+
+### Service Not Registering with Eureka
+- Wait 30-60 seconds for registration
+- Check Discovery Server is running
+- Verify `application.yml` eureka configuration
+- Check logs for connection errors
+
+### Frontend Compilation Errors
+```bash
+# Reinstall dependencies
+cd frontend
+rm -rf node_modules package-lock.json
+npm install
+npm run dev
+```
+
+### Database Issues
+- Currently using H2 in-memory database
+- Data is lost on service restart
+- Check `application.yml` for datasource configuration
+
+---
+
+## 📊 Monitoring
+
+### Eureka Dashboard
+Visit http://localhost:8761 to see:
+- All registered services
+- Instance status (UP/DOWN)
+- Service URLs
+- Metadata
+
+### Service Information
+```bash
+# Get service info from Eureka
+curl http://localhost:8761/eureka/apps
+
+# Get specific service instances
+curl http://localhost:8761/eureka/apps/EVENT-SERVICE
+curl http://localhost:8761/eureka/apps/USER-SERVICE
+curl http://localhost:8761/eureka/apps/BOOKING-SERVICE
+```
+
+---
+
+## 📁 Log Files Location
+
+All logs are stored in: `/Users/macboookpro/Downloads/event-management-system/logs/`
+
+- `discovery.log` - Eureka Server logs
+- `config-server.log` - Config Server logs
+- `gateway.log` - API Gateway logs
+- `event-service.log` - Event Service logs
+- `user-service.log` - User Service logs
+- `booking-service.log` - Booking Service logs
+- `frontend.log` - Next.js frontend logs
+
+---
+
+## 🔄 Development Workflow
+
+### Making Changes to Backend
+1. Stop the affected service: `lsof -ti:<port> | xargs kill -9`
+2. Make your changes
+3. Rebuild: `cd <service-directory> && mvn clean compile`
+4. Restart: `mvn spring-boot:run > ../../logs/<service>.log 2>&1 &`
+
+### Making Changes to Frontend
+1. Changes are auto-reloaded (Hot Module Replacement)
+2. If needed, restart: 
+   ```bash
+   lsof -ti:3000 | xargs kill -9
+   cd frontend && npm run dev > ../logs/frontend.log 2>&1 &
+   ```
+
+---
+
+## ✅ Verification Checklist
+
+After starting services, verify:
+
+- [ ] All 7 services show "Running" in status check
+- [ ] Eureka dashboard shows 5 registered services
+- [ ] Frontend loads at http://localhost:3000
+- [ ] Navigation works (Events, Login, Register links)
+- [ ] API Gateway returns responses
+- [ ] No error logs in recent service logs
+
+---
+
+## 🎯 Next Steps
+
+1. **Test the Application**
+   - Open http://localhost:3000 in browser
+   - Test user registration
+   - Create an event
+   - Make a booking
+
+2. **Review Code**
+   - See `CODE_REVIEW_SUMMARY.md` for detailed analysis
+   - Check security recommendations
+   - Review improvement suggestions
+
+3. **Develop Features**
+   - Refer to `GUIDE.md` for architecture details
+   - Follow microservices best practices
+   - Add tests as you develop
+
+---
+
+**Status Date**: February 1, 2026  
+**All Systems**: ✅ OPERATIONAL  
+**Ready For**: Development and Testing

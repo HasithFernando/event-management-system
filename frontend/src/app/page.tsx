@@ -30,112 +30,89 @@ export default function Home() {
   }, []);
 
   return (
-    <div>
+    <main className="animate-fade-in">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">
-            Discover Amazing Events
-          </h1>
-          <p className="text-xl mb-8 text-indigo-100">
-            Find and book tickets for the best events in your area
-          </p>
-          <div className="flex justify-center space-x-4">
-            <Link
-              href="/events"
-              className="px-8 py-3 bg-white text-indigo-600 font-semibold rounded-lg hover:bg-indigo-50 transition-colors"
-            >
-              Browse Events
-            </Link>
-            <Link
-              href="/auth/register"
-              className="px-8 py-3 bg-indigo-500 text-white font-semibold rounded-lg border border-white hover:bg-indigo-400 transition-colors"
-            >
-              Get Started
-            </Link>
-          </div>
+      <section className="hero-section">
+        <h1>Discover Amazing Events ✨</h1>
+        <p>
+          Find and book tickets for the best events in your area
+        </p>
+        <div className="btn-group">
+          <Link href="/events" className="btn btn-primary">
+            <span>🎫</span> Browse Events
+          </Link>
+          <Link href="/auth/register" className="btn btn-secondary">
+            <span>🚀</span> Get Started
+          </Link>
         </div>
       </section>
 
       {/* Featured Events */}
       {featuredEvents.length > 0 && (
-        <section className="py-16 bg-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center mb-8">
-              <h2 className="text-3xl font-bold text-gray-900">Featured Events</h2>
-              <Link
-                href="/events?featured=true"
-                className="text-indigo-600 hover:text-indigo-700 font-medium"
-              >
-                View all →
-              </Link>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {featuredEvents.map((event) => (
-                <EventCard key={event.id} event={event} />
-              ))}
-            </div>
+        <section className="section">
+          <div className="section-header">
+            <h2 className="section-title">⭐ Featured Events</h2>
+            <Link href="/events?featured=true" className="gradient-text font-semibold">
+              View all →
+            </Link>
+          </div>
+          <div className="grid grid-3">
+            {featuredEvents.map((event) => (
+              <EventCard key={event.id} event={event} />
+            ))}
           </div>
         </section>
       )}
 
       {/* Upcoming Events */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-900">Upcoming Events</h2>
-            <Link
-              href="/events"
-              className="text-indigo-600 hover:text-indigo-700 font-medium"
-            >
-              View all →
+      <section className="section">
+        <div className="section-header">
+          <h2 className="section-title">🎪 Upcoming Events</h2>
+          <Link href="/events" className="gradient-text font-semibold">
+            View all →
+          </Link>
+        </div>
+        {isLoading ? (
+          <div className="flex-center" style={{ padding: '3rem' }}>
+            <div className="spinner"></div>
+          </div>
+        ) : upcomingEvents.length > 0 ? (
+          <div className="grid grid-3">
+            {upcomingEvents.map((event) => (
+              <EventCard key={event.id} event={event} />
+            ))}
+          </div>
+        ) : (
+          <div className="card text-center">
+            <h3>📅 No upcoming events found</h3>
+            <p className="mt-md mb-lg">Be the first to create an amazing event!</p>
+            <Link href="/events/create" className="btn btn-primary">
+              Create the first event →
             </Link>
           </div>
-          {isLoading ? (
-            <div className="flex justify-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600"></div>
-            </div>
-          ) : upcomingEvents.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {upcomingEvents.map((event) => (
-                <EventCard key={event.id} event={event} />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <p className="text-gray-500 text-lg">No upcoming events found.</p>
-              <Link
-                href="/events/create"
-                className="mt-4 inline-block text-indigo-600 hover:text-indigo-700"
-              >
-                Create the first event →
-              </Link>
-            </div>
-          )}
-        </div>
+        )}
       </section>
 
       {/* Categories */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
-            Browse by Category
-          </h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {['CONFERENCE', 'WORKSHOP', 'CONCERT', 'SPORTS', 'TECHNOLOGY', 'ARTS'].map(
-              (category) => (
-                <Link
-                  key={category}
-                  href={`/events?category=${category}`}
-                  className="p-4 bg-gray-50 rounded-lg text-center hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
-                >
-                  <span className="text-sm font-medium">{category}</span>
-                </Link>
-              )
-            )}
-          </div>
+      <section className="section">
+        <div className="section-header text-center">
+          <h2 className="section-title">🎨 Browse by Category</h2>
+          <p className="section-subtitle">Discover events that match your interests</p>
+        </div>
+        <div className="category-list">
+          {[{ name: 'CONFERENCE', icon: '🎤' }, { name: 'WORKSHOP', icon: '🛠️' }, { name: 'CONCERT', icon: '🎵' }, { name: 'SPORTS', icon: '⚽' }, { name: 'TECHNOLOGY', icon: '💻' }, { name: 'ARTS', icon: '🎨' }].map(
+            ({ name, icon }) => (
+              <Link
+                key={name}
+                href={`/events?category=${name}`}
+                className="category-badge"
+              >
+                <span>{icon} {name}</span>
+              </Link>
+            )
+          )}
         </div>
       </section>
-    </div>
+    </main>
   );
 }
