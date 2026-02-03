@@ -13,6 +13,16 @@ export const userService = {
     return response.data;
   },
 
+  googleLogin: async (token: string): Promise<AuthResponse> => {
+    const response = await apiClient.post<AuthResponse>('/users/auth/google/login', { token });
+    return response.data;
+  },
+
+  googleRegister: async (token: string, role?: string): Promise<AuthResponse> => {
+    const response = await apiClient.post<AuthResponse>('/users/auth/google/register', { token, role });
+    return response.data;
+  },
+
   // User CRUD endpoints
   getAllUsers: async (): Promise<User[]> => {
     const response = await apiClient.get<User[]>('/users');

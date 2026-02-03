@@ -5,10 +5,11 @@ spring:
   application:
     name: booking-service
   datasource:
-    url: jdbc:h2:mem:bookingdb
-    driver-class-name: org.h2.Driver
-    username: sa
-    password: 
+
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3309/bookingdb}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${SPRING_DATASOURCE_USERNAME:root}
+    password: ${SPRING_DATASOURCE_PASSWORD:root} 
   h2:
     console:
       enabled: true

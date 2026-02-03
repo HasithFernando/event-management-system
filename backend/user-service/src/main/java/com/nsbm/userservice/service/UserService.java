@@ -10,8 +10,21 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
+
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.gson.GsonFactory;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +32,9 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository;
+
+    @org.springframework.beans.factory.annotation.Value("${spring.security.oauth2.client.registration.google.client-id}")
+    private String googleClientId;
 
     // ==================== Authentication Methods ====================
 
@@ -81,6 +97,113 @@ public class UserService {
                 .role(user.getRole().name())
                 .user(userDTO)
                 .message("Login successful")
+                .build();
+    }
+
+    public AuthResponse loginWithGoogle(GoogleLoginRequest request) {
+        try {
+            // Use Access Token to get User Info
+            Map<String, Object> payload = getGoogleUserInfo(request.getToken());
+
+            String email = (String) payload.get("email");
+
+            // Check if user exists
+            User user = userRepository.findByEmail(email).orElse(null);
+
+            if (user == null) {
+                // Determine if this is a login attempt without prior registration
+                throw new IllegalStateException("User not registered. Please sign up with Google first.");
+            }
+
+            // Return Auth Response
+            UserDTO userDTO = toDTO(user);
+            return buildAuthResponse(user, userDTO, "Google Login successful");
+
+        } catch (Exception e) {
+            throw new IllegalStateException("Google Auth failed: " + e.getMessage());
+        }
+    }
+
+    public AuthResponse registerWithGoogle(GoogleLoginRequest request) {
+        try {
+            // Use Access Token to get User Info
+            Map<String, Object> payload = getGoogleUserInfo(request.getToken());
+
+            String email = (String) payload.get("email");
+            String firstName = (String) payload.get("given_name");
+            String lastName = (String) payload.get("family_name");
+
+            // Check if user exists
+            User user = userRepository.findByEmail(email).orElse(null);
+
+            if (user != null) {
+                // User already exists, perhaps log them in or throw error
+                // The requirement is "signup using google". If already exists, we can treat it
+                // as success or "already registered"
+                // Let's return success (idempotent)
+                UserDTO userDTO = toDTO(user);
+                return buildAuthResponse(user, userDTO, "User already registered. Login successful.");
+            }
+
+            // Determine Role
+            Role userRole = Role.USER;
+            if (request.getRole() != null) {
+                try {
+                    userRole = Role.valueOf(request.getRole().toUpperCase());
+                } catch (IllegalArgumentException e) {
+                    // Invalid role, keep default
+                }
+            }
+
+            // Register new user
+            user = User.builder()
+                    .email(email)
+                    .firstName(firstName != null ? firstName : "Google")
+                    .lastName(lastName != null ? lastName : "User")
+                    .password("GOOGLE_AUTH") // Dummy password
+                    .role(userRole)
+                    .enabled(true)
+                    .build();
+            user = userRepository.save(user);
+
+            // Return Auth Response
+            UserDTO userDTO = toDTO(user);
+            return buildAuthResponse(user, userDTO, "Google Registration successful");
+
+        } catch (Exception e) {
+            throw new IllegalStateException("Google Registration failed: " + e.getMessage());
+        }
+    }
+
+    private Map<String, Object> getGoogleUserInfo(String token) {
+        RestTemplate restTemplate = new RestTemplate();
+        String userInfoUrl = "https://www.googleapis.com/oauth2/v3/userinfo";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+
+        HttpEntity<String> entity = new HttpEntity<>("", headers);
+
+        ResponseEntity<Map> response = restTemplate.exchange(userInfoUrl, HttpMethod.GET, entity, Map.class);
+
+        if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+            return response.getBody();
+        } else {
+            throw new IllegalStateException("Invalid Access Token or failed to fetch user info.");
+        }
+    }
+
+    private AuthResponse buildAuthResponse(User user, UserDTO userDTO, String message) {
+        return AuthResponse.builder()
+                .token("temp-token-" + user.getId())
+                .type("Bearer")
+                .userId(user.getId())
+                .email(user.getEmail())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .role(user.getRole().name())
+                .user(userDTO)
+                .message(message)
                 .build();
     }
 

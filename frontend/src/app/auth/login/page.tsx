@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useGoogleLogin } from '@react-oauth/google';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -8,13 +9,29 @@ import { getErrorMessage } from '../../../lib/api';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { login, googleLogin } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  // Custom Google Login Hook
+  const loginToGoogle = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      try {
+        await googleLogin(tokenResponse.access_token);
+        router.push('/');
+      } catch (err) {
+        console.error('Google login error:', err);
+        setError('Google Login Failed');
+      }
+    },
+    onError: () => {
+      setError('Google Login Failed');
+    },
+  });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -37,12 +54,6 @@ export default function LoginPage() {
     }
   };
 
-  const handleGoogleLogin = () => {
-    // TODO: Implement Google OAuth
-    console.log('Google login clicked');
-    alert('Google OAuth integration coming soon!');
-  };
-
   return (
     <div className="auth-container">
       {/* Left Side - Form */}
@@ -50,7 +61,7 @@ export default function LoginPage() {
         <div className="auth-form-wrapper">
           <div className="auth-form-content">
             <h1 className="auth-title">LOGIN</h1>
-            <p className="auth-subtitle">How to i get started lorem ipsum dolor at?</p>
+            <p className="auth-subtitle">Welcome back to the Event Management System</p>
 
             {/* Error Alert */}
             {error && (
@@ -115,11 +126,11 @@ export default function LoginPage() {
               <span>Login with Others</span>
             </div>
 
-            {/* Social Login */}
+            {/* Social Login - Custom Button */}
             <div className="auth-social-buttons">
               <button
                 type="button"
-                onClick={handleGoogleLogin}
+                onClick={() => loginToGoogle()}
                 className="auth-google-btn"
               >
                 <svg width="20" height="20" viewBox="0 0 24 24">
@@ -128,7 +139,7 @@ export default function LoginPage() {
                   <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
                   <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                 </svg>
-                <span>Login with google</span>
+                <span>Sign in with google</span>
               </button>
             </div>
 

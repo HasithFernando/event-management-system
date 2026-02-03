@@ -10,6 +10,8 @@ interface AuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
   login: (data: LoginRequest) => Promise<void>;
+  googleLogin: (token: string) => Promise<void>;
+  googleRegister: (token: string, role?: string) => Promise<void>;
   register: (data: RegisterRequest) => Promise<void>;
   logout: () => void;
   updateUser: (user: User) => void;
@@ -48,6 +50,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('user', JSON.stringify(response.user));
   };
 
+  const googleLogin = async (token: string): Promise<void> => {
+    const response: AuthResponse = await userService.googleLogin(token);
+    setToken(response.token);
+    setUser(response.user);
+    localStorage.setItem('token', response.token);
+    localStorage.setItem('user', JSON.stringify(response.user));
+  };
+
+  const googleRegister = async (token: string, role?: string): Promise<void> => {
+    const response: AuthResponse = await userService.googleRegister(token, role);
+    setToken(response.token);
+    setUser(response.user);
+    localStorage.setItem('token', response.token);
+    localStorage.setItem('user', JSON.stringify(response.user));
+  };
+
   const register = async (data: RegisterRequest): Promise<void> => {
     const response: AuthResponse = await userService.register(data);
     setToken(response.token);
@@ -74,6 +92,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isLoading,
     isAuthenticated: !!token && !!user,
     login,
+    googleLogin,
+    googleRegister,
     register,
     logout,
     updateUser,

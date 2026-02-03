@@ -3,12 +3,20 @@ server:
 
 spring:
   application:
+
     name: user-service
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID:264246243864-5ojqq2rj6ma33sououb45uc8e5da8o2f.apps.googleusercontent.com}
   datasource:
-    url: jdbc:h2:mem:userdb
-    driver-class-name: org.h2.Driver
-    username: sa
-    password: 
+
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3308/userdb}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${SPRING_DATASOURCE_USERNAME:root}
+    password: ${SPRING_DATASOURCE_PASSWORD:root}
   h2:
     console:
       enabled: true
