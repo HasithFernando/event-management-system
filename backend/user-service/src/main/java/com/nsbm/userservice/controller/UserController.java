@@ -33,6 +33,18 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/auth/google/login")
+    public ResponseEntity<AuthResponse> googleLogin(@RequestBody GoogleLoginRequest request) {
+        AuthResponse response = userService.loginWithGoogle(request);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/auth/google/register")
+    public ResponseEntity<AuthResponse> googleRegister(@RequestBody GoogleLoginRequest request) {
+        AuthResponse response = userService.registerWithGoogle(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
     // ==================== User CRUD Endpoints ====================
 
     @GetMapping

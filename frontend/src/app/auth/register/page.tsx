@@ -5,10 +5,11 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '../../../contexts/AuthContext';
 import { getErrorMessage } from '../../../lib/api';
+import { useGoogleLogin } from '@react-oauth/google';
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { register } = useAuth();
+  const { register, googleRegister } = useAuth();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -19,6 +20,22 @@ export default function RegisterPage() {
   });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  // Custom Google Register Hook
+  const loginToGoogle = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      try {
+        await googleRegister(tokenResponse.access_token, formData.role);
+        router.push('/');
+      } catch (err) {
+        console.error('Google register error:', err);
+        setError('Google Registration Failed');
+      }
+    },
+    onError: () => {
+      setError('Google Registration Failed');
+    },
+  });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -39,12 +56,6 @@ export default function RegisterPage() {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleGoogleRegister = () => {
-    // TODO: Implement Google OAuth
-    console.log('Google register clicked');
-    alert('Google OAuth integration coming soon!');
   };
 
   return (
@@ -199,7 +210,7 @@ export default function RegisterPage() {
             <div className="auth-social-buttons">
               <button
                 type="button"
-                onClick={handleGoogleRegister}
+                onClick={() => loginToGoogle()}
                 className="auth-google-btn"
               >
                 <svg width="20" height="20" viewBox="0 0 24 24">

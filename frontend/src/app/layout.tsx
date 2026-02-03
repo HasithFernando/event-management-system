@@ -3,6 +3,7 @@ import './globals.css'
 import { AuthProvider } from '../contexts/AuthContext'
 import { ThemeProvider } from '../contexts/ThemeContext'
 import ClientLayout from './ClientLayout'
+import { GoogleWrapper } from '../providers/GoogleWrapper'
 
 export const metadata: Metadata = {
   title: 'Event Management System',
@@ -19,9 +20,11 @@ export default function RootLayout({
       <body>
         <ThemeProvider>
           <AuthProvider>
-            <ClientLayout>
-              {children}
-            </ClientLayout>
+            <GoogleWrapper>
+              <ClientLayout>
+                {children}
+              </ClientLayout>
+            </GoogleWrapper>
           </AuthProvider>
         </ThemeProvider>
       </body>

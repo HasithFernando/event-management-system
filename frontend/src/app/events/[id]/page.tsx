@@ -127,13 +127,12 @@ export default function EventDetailPage() {
                 {event.category}
               </span>
               <span
-                className={`text-sm font-medium px-3 py-1 rounded ${
-                  event.status === 'PUBLISHED'
+                className={`text-sm font-medium px-3 py-1 rounded ${event.status === 'PUBLISHED'
                     ? 'bg-green-100 text-green-800'
                     : event.status === 'SOLD_OUT'
-                    ? 'bg-red-100 text-red-800'
-                    : 'bg-gray-100 text-gray-800'
-                }`}
+                      ? 'bg-red-100 text-red-800'
+                      : 'bg-gray-100 text-gray-800'
+                  }`}
               >
                 {event.status}
               </span>
@@ -229,7 +228,7 @@ export default function EventDetailPage() {
                 {bookingSuccess && (
                   <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-600 rounded-md text-sm">
                     {bookingSuccess}
-                    <Link href="/bookings" className="block mt-2 text-green-700 underline">
+                    <Link href="/my-tickets" className="block mt-2 text-green-700 underline">
                       View my bookings
                     </Link>
                   </div>
