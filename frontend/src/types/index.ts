@@ -17,6 +17,7 @@ export interface RegisterRequest {
   email: string;
   password: string;
   phone?: string;
+  role?: 'USER' | 'ORGANIZER';
 }
 
 export interface LoginRequest {
