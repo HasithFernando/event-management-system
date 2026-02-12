@@ -1,0 +1,70 @@
+package com.eventflow.ticketservice.controller;
+
+import com.eventflow.ticketservice.dto.TicketPurchaseRequest;
+import com.eventflow.ticketservice.dto.TicketResponse;
+import com.eventflow.ticketservice.dto.TicketStatusUpdateRequest;
+import com.eventflow.ticketservice.model.Ticket;
+import com.eventflow.ticketservice.service.TicketService;
+import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+import java.util.UUID;
+
+@RestController
+@RequestMapping("/api/tickets")
+public class TicketController {
+  private final TicketService ticketService;
+
+  public TicketController(TicketService ticketService) {
+    this.ticketService = ticketService;
+  }
+
+  @PostMapping
+  public ResponseEntity<TicketResponse> purchase(@Valid @RequestBody TicketPurchaseRequest request) {
+    return ResponseEntity.ok(toResponse(ticketService.purchase(request)));
+  }
+
+  @GetMapping("/{id}")
+  public TicketResponse get(@PathVariable UUID id) {
+    return toResponse(ticketService.get(id));
+  }
+
+  @GetMapping
+  public List<TicketResponse> list(@RequestParam(required = false) UUID eventId,
+                                   @RequestParam(required = false) UUID attendeeId) {
+    return ticketService.list(eventId, attendeeId).stream().map(this::toResponse).toList();
+  }
+
+  @PatchMapping("/{id}/status")
+  public ResponseEntity<TicketResponse> updateStatus(@PathVariable UUID id,
+                                                     @Valid @RequestBody TicketStatusUpdateRequest request) {
+    return ResponseEntity.ok(toResponse(ticketService.updateStatus(id, request)));
+  }
+
+  @ExceptionHandler(IllegalArgumentException.class)
+  public ResponseEntity<String> handleBadRequest(IllegalArgumentException ex) {
+    return ResponseEntity.badRequest().body(ex.getMessage());
+  }
+
+  private TicketResponse toResponse(Ticket ticket) {
+    return new TicketResponse(
+      ticket.getId(),
+      ticket.getEventId(),
+      ticket.getAttendeeId(),
+      ticket.getPrice(),
+      ticket.getStatus(),
+      ticket.getPurchasedAt()
+    );
+  }
+}
+

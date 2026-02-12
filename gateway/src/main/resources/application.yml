@@ -35,12 +35,22 @@ spring:
             allowCredentials: true
             maxAge: 3600
       routes:
+        # Auth routes (handled by user-service)
+        - id: auth-service
+          uri: lb://user-service
+          predicates:
+            - Path=/api/auth/**
+          filters:
+            - RewritePath=/api/auth(?<segment>/?.*), /users/auth${segment}
+            - AddResponseHeader=X-Content-Type-Options,nosniff
+            - AddResponseHeader=X-Frame-Options,DENY
+            - AddResponseHeader=X-XSS-Protection,1;mode=block
         - id: event-service
           uri: lb://event-service
           predicates:
             - Path=/api/events/**
           filters:
-            - RewritePath=/api/events/(?<segment>.*), /events/${segment}
+            - RewritePath=/api/events(?<segment>/?.*), /events${segment}
             - AddResponseHeader=X-Content-Type-Options,nosniff
             - AddResponseHeader=X-Frame-Options,DENY
             - AddResponseHeader=X-XSS-Protection,1;mode=block
@@ -49,7 +59,7 @@ spring:
           predicates:
             - Path=/api/users/**
           filters:
-            - RewritePath=/api/users/(?<segment>.*), /users/${segment}
+            - RewritePath=/api/users(?<segment>/?.*), /users${segment}
             - AddResponseHeader=X-Content-Type-Options,nosniff
             - AddResponseHeader=X-Frame-Options,DENY
             - AddResponseHeader=X-XSS-Protection,1;mode=block
@@ -58,7 +68,7 @@ spring:
           predicates:
             - Path=/api/bookings/**
           filters:
-            - RewritePath=/api/bookings/(?<segment>.*), /bookings/${segment}
+            - RewritePath=/api/bookings(?<segment>/?.*), /bookings${segment}
             - AddResponseHeader=X-Content-Type-Options,nosniff
             - AddResponseHeader=X-Frame-Options,DENY
             - AddResponseHeader=X-XSS-Protection,1;mode=block
@@ -67,7 +77,7 @@ spring:
           predicates:
             - Path=/api/notifications/**
           filters:
-            - RewritePath=/api/notifications/(?<segment>.*), /notifications/${segment}
+            - RewritePath=/api/notifications(?<segment>/?.*), /notifications${segment}
             - AddResponseHeader=X-Content-Type-Options,nosniff
             - AddResponseHeader=X-Frame-Options,DENY
             - AddResponseHeader=X-XSS-Protection,1;mode=block
@@ -76,7 +86,7 @@ spring:
           predicates:
             - Path=/api/payments/**
           filters:
-            - RewritePath=/api/payments/(?<segment>.*), /payments/${segment}
+            - RewritePath=/api/payments(?<segment>/?.*), /payments${segment}
             - AddResponseHeader=X-Content-Type-Options,nosniff
             - AddResponseHeader=X-Frame-Options,DENY
             - AddResponseHeader=X-XSS-Protection,1;mode=block
@@ -85,10 +95,11 @@ spring:
           predicates:
             - Path=/api/reviews/**
           filters:
-            - RewritePath=/api/reviews/(?<segment>.*), /reviews/${segment}
+            - RewritePath=/api/reviews(?<segment>/?.*), /reviews${segment}
             - AddResponseHeader=X-Content-Type-Options,nosniff
             - AddResponseHeader=X-Frame-Options,DENY
             - AddResponseHeader=X-XSS-Protection,1;mode=block
+
 
 eureka:
   client:
