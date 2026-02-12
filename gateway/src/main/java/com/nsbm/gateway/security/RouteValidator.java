@@ -11,6 +11,7 @@ public class RouteValidator {
     // List of endpoints that don't require authentication
     private static final List<String> OPEN_API_ENDPOINTS = List.of(
             "/api/users/auth", // All auth endpoints (login, register, google)
+            "/api/auth", // Add this line - matches /api/auth/login, /api/auth/register
             "/api/users/health", // Health check
             "/api/events/health", // Health check
             "/api/events/published", // Public events (no auth required to view)
