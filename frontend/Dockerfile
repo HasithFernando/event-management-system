@@ -1,29 +1,31 @@
-FROM node:18-bullseye-slim AS deps
+# Build stage
+FROM node:20-alpine AS builder
+
 WORKDIR /app
-COPY package.json package-lock.json* ./
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
 RUN npm ci
 
-FROM node:18-bullseye-slim AS builder
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
+# Copy source code
 COPY . .
+
+# Build the application
 RUN npm run build
 
-FROM node:18-bullseye-slim AS runner
-WORKDIR /app
-ENV NODE_ENV=production
+# Production stage
+FROM nginx:alpine
 
-# Create user (Debian style)
-RUN groupadd --system --gid 1001 nodejs \
-  && useradd --system --uid 1001 --gid nodejs nextjs
+# Copy built assets from builder
+COPY --from=builder /app/dist /usr/share/nginx/html
 
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-# (Optional but often needed)
-# COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+# Copy nginx configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-USER nextjs
+# Expose port
 EXPOSE 3000
-ENV PORT=3000
 
-CMD ["node", "server.js"]
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]
