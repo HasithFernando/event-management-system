@@ -7,9 +7,10 @@ import { toast } from "sonner";
 interface AttendeeDashboardProps {
   user: { id: string; name: string; role: string };
   onLogout: () => void;
+  onBuyTickets: (event: EventItem) => void;
 }
 
-export function AttendeeDashboard({ user, onLogout }: AttendeeDashboardProps) {
+export function AttendeeDashboard({ user, onLogout, onBuyTickets }: AttendeeDashboardProps) {
   const [activeTab, setActiveTab] = useState<'discover' | 'tickets'>('discover');
   const [searchTerm, setSearchTerm] = useState("");
   const [likedEvents, setLikedEvents] = useState<string[]>([]);
@@ -59,19 +60,7 @@ export function AttendeeDashboard({ user, onLogout }: AttendeeDashboardProps) {
       setActiveTab('tickets');
       return;
     }
-
-    try {
-      const purchasePromise = ticketApi.purchase({ eventId: event.id, attendeeId: user.id, price: event.price });
-      toast.promise(purchasePromise, {
-        loading: 'Processing payment...',
-        success: `Successfully registered for ${event.title}!`,
-        error: 'Failed to book ticket'
-      });
-      await purchasePromise;
-      setMyTickets((previous) => [...previous, event]);
-    } catch (error) {
-      console.error(error);
-    }
+    onBuyTickets(event);
   };
 
   return (
@@ -86,16 +75,16 @@ export function AttendeeDashboard({ user, onLogout }: AttendeeDashboardProps) {
               </div>
               <span className="text-xl font-bold text-gray-900">EventFlow</span>
             </div>
-            
+
             <div className="hidden md:flex items-center space-x-8">
-              <button 
+              <button
                 onClick={() => setActiveTab('discover')}
                 className={clsx("text-sm font-medium transition-colors relative py-5", activeTab === 'discover' ? "text-indigo-600" : "text-gray-500 hover:text-gray-900")}
               >
                 Discover
                 {activeTab === 'discover' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600 rounded-t-full" />}
               </button>
-              <button 
+              <button
                 onClick={() => setActiveTab('tickets')}
                 className={clsx("text-sm font-medium transition-colors relative py-5", activeTab === 'tickets' ? "text-indigo-600" : "text-gray-500 hover:text-gray-900")}
               >
@@ -137,9 +126,9 @@ export function AttendeeDashboard({ user, onLogout }: AttendeeDashboardProps) {
                 <p className="text-indigo-100 text-lg mb-8">Discover concerts, workshops, and conferences happening near you.</p>
                 <div className="relative max-w-md">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <input 
-                    type="text" 
-                    placeholder="Search events, categories, or locations..." 
+                  <input
+                    type="text"
+                    placeholder="Search events, categories, or locations..."
                     className="w-full pl-10 pr-4 py-3 rounded-xl border-0 focus:ring-2 focus:ring-indigo-500 text-gray-900 shadow-lg placeholder:text-gray-400"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
@@ -166,17 +155,17 @@ export function AttendeeDashboard({ user, onLogout }: AttendeeDashboardProps) {
                         ${event.price}
                       </div>
                     </div>
-                    
+
                     <div className="p-5 flex-1 flex flex-col">
                       <div className="flex items-center gap-2 mb-2">
                         <span className="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 text-xs font-medium border border-indigo-100">
                           {event.category}
                         </span>
                       </div>
-                      
+
                       <h3 className="font-bold text-lg text-gray-900 mb-2 line-clamp-1">{event.title}</h3>
                       <p className="text-gray-500 text-sm mb-4 line-clamp-2">{event.description}</p>
-                      
+
                       <div className="mt-auto space-y-2 text-sm text-gray-600">
                         <div className="flex items-center gap-2">
                           <Calendar className="w-4 h-4 text-gray-400" />
@@ -188,87 +177,87 @@ export function AttendeeDashboard({ user, onLogout }: AttendeeDashboardProps) {
                         </div>
                       </div>
 
-                      <button 
+                      <button
                         onClick={() => handleBuyTicket(event)}
                         className={clsx(
                           "w-full mt-4 py-2 rounded-lg text-sm font-medium transition-colors",
-                          myTickets.some(t => t.id === event.id) 
-                             ? "bg-green-50 text-green-700 border border-green-200 cursor-default"
-                             : "bg-gray-900 text-white hover:bg-gray-800"
+                          myTickets.some(t => t.id === event.id)
+                            ? "bg-green-50 text-green-700 border border-green-200 cursor-default"
+                            : "bg-gray-900 text-white hover:bg-gray-800"
                         )}
                       >
-                        {myTickets.some(t => t.id === event.id) ? "Ticket Purchased" : "Get Tickets"}
+                        {myTickets.some(t => t.id === event.id) ? "Ticket Purchased" : "Purchase Ticket"}
                       </button>
                     </div>
                   </div>
                 ))}
               </div>
-              
+
               {filteredEvents.length === 0 && (
                 <div className="text-center py-12">
-                   <p className="text-gray-500">No events found matching "{searchTerm}"</p>
+                  <p className="text-gray-500">No events found matching "{searchTerm}"</p>
                 </div>
               )}
             </div>
           </div>
         ) : (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-4xl mx-auto">
-             <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">My Tickets</h2>
-                <span className="text-gray-500 text-sm">{myTickets.length} active tickets</span>
-             </div>
-             
-             {myTickets.length === 0 ? (
-               <div className="text-center py-24 bg-white rounded-2xl border border-gray-100 border-dashed">
-                 <Ticket className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                 <h3 className="text-lg font-medium text-gray-900">No tickets yet</h3>
-                 <p className="text-gray-500 mt-2 mb-6">Browse events and book your first experience!</p>
-                 <button 
-                   onClick={() => setActiveTab('discover')}
-                   className="px-6 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors"
-                 >
-                   Browse Events
-                 </button>
-               </div>
-             ) : (
-               <div className="space-y-4">
-                 {myTickets.map((event) => (
-                   <div key={event.id} className="bg-white p-4 md:p-6 rounded-xl border border-gray-100 shadow-sm flex flex-col md:flex-row gap-6 hover:shadow-md transition-shadow">
-                     <div className="w-full md:w-48 h-32 rounded-lg overflow-hidden flex-shrink-0">
-                       <img src={event.imageUrl || ""} alt={event.title} className="w-full h-full object-cover" />
-                     </div>
-                     <div className="flex-1">
-                       <div className="flex justify-between items-start">
-                         <div>
-                           <h3 className="text-xl font-bold text-gray-900">{event.title}</h3>
-                           <div className="flex items-center text-gray-500 text-sm mt-1">
-                              <Calendar className="w-4 h-4 mr-1.5" />
-                              {event.date} at {event.time}
-                           </div>
-                           <div className="flex items-center text-gray-500 text-sm mt-1">
-                              <MapPin className="w-4 h-4 mr-1.5" />
-                              {event.location}
-                           </div>
-                         </div>
-                         <span className="px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full uppercase tracking-wide flex items-center">
-                           <CheckCircle className="w-3 h-3 mr-1" />
-                           Confirmed
-                         </span>
-                       </div>
-                       <div className="mt-6 flex gap-3">
-                         <button className="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors shadow-sm">
-                           <Ticket className="w-4 h-4 mr-2" />
-                           View Ticket
-                         </button>
-                         <button className="px-4 py-2 border border-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
-                           Add to Calendar
-                         </button>
-                       </div>
-                     </div>
-                   </div>
-                 ))}
-               </div>
-             )}
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">My Tickets</h2>
+              <span className="text-gray-500 text-sm">{myTickets.length} active tickets</span>
+            </div>
+
+            {myTickets.length === 0 ? (
+              <div className="text-center py-24 bg-white rounded-2xl border border-gray-100 border-dashed">
+                <Ticket className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900">No tickets yet</h3>
+                <p className="text-gray-500 mt-2 mb-6">Browse events and book your first experience!</p>
+                <button
+                  onClick={() => setActiveTab('discover')}
+                  className="px-6 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors"
+                >
+                  Browse Events
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {myTickets.map((event) => (
+                  <div key={event.id} className="bg-white p-4 md:p-6 rounded-xl border border-gray-100 shadow-sm flex flex-col md:flex-row gap-6 hover:shadow-md transition-shadow">
+                    <div className="w-full md:w-48 h-32 rounded-lg overflow-hidden flex-shrink-0">
+                      <img src={event.imageUrl || ""} alt={event.title} className="w-full h-full object-cover" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h3 className="text-xl font-bold text-gray-900">{event.title}</h3>
+                          <div className="flex items-center text-gray-500 text-sm mt-1">
+                            <Calendar className="w-4 h-4 mr-1.5" />
+                            {event.date} at {event.time}
+                          </div>
+                          <div className="flex items-center text-gray-500 text-sm mt-1">
+                            <MapPin className="w-4 h-4 mr-1.5" />
+                            {event.location}
+                          </div>
+                        </div>
+                        <span className="px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full uppercase tracking-wide flex items-center">
+                          <CheckCircle className="w-3 h-3 mr-1" />
+                          Confirmed
+                        </span>
+                      </div>
+                      <div className="mt-6 flex gap-3">
+                        <button className="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors shadow-sm">
+                          <Ticket className="w-4 h-4 mr-2" />
+                          View Ticket
+                        </button>
+                        <button className="px-4 py-2 border border-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
+                          Add to Calendar
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </main>

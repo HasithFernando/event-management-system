@@ -27,13 +27,25 @@ export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<EventItem | null>(null);
 
-  // Check for health check route
+  // Check for health check route and load user from storage
   useEffect(() => {
     const path = window.location.pathname;
     if (path === '/health' || window.location.hash === '#/health') {
       setView('health');
     } else if (path === '/payment/success') {
       setView('payment_success');
+    }
+
+    // Restore user session
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      try {
+        setUser(JSON.parse(storedUser));
+        if (view === 'landing') setView('app');
+      } catch (e) {
+        console.error('Failed to parse user session', e);
+        localStorage.removeItem('user');
+      }
     }
   }, []);
 
@@ -57,12 +69,15 @@ export default function App() {
   }, []);
 
   const handleLogin = (payload: AuthResponse) => {
-    setUser({ id: payload.userId, name: payload.name, role: payload.role, token: payload.token });
+    const userData = { id: payload.userId, name: payload.name, role: payload.role, token: payload.token };
+    setUser(userData);
+    localStorage.setItem('user', JSON.stringify(userData));
     setView("app");
   };
 
   const handleLogout = () => {
     setUser(null);
+    localStorage.removeItem('user');
     setView("landing");
     setActiveTab("dashboard");
   };
@@ -148,7 +163,7 @@ export default function App() {
     }
 
     if (user?.role === "attendee") {
-      return <AttendeeDashboard user={user} onLogout={handleLogout} />;
+      return <AttendeeDashboard user={user} onLogout={handleLogout} onBuyTickets={handleBuyTickets} />;
     }
 
     // Organizer View

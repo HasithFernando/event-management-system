@@ -108,16 +108,7 @@ export function EventList({ events, onCreateClick, onBuyTickets }: EventListProp
               <div className="mt-5 pt-4 border-t border-gray-100 flex justify-between items-center">
                 {/* <button className="text-sm font-medium text-indigo-600 hover:text-indigo-700">View Details</button> */}
                 <button
-                  onClick={() => {
-                    // Navigate using window.location or props if available, 
-                    // but since EventList is used inside App.tsx which has routing state or uses router
-                    // we need to check how to navigate.
-                    // Assuming App.tsx passes a navigation method or we use a link.
-                    // Let's use a custom event or check App.tsx again.
-                    // Actually, let's use a prop callback or window.location for now if router not present.
-                    // BUT, we saw `useNavigate` in Checkout.tsx.
-                    // Let's assume we can pass `onBuyTickets` prop to EventList.
-                  }}
+                  onClick={() => onBuyTickets(event)}
                   className="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors shadow-sm"
                 >
                   Get Tickets

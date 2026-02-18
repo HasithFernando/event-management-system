@@ -30,7 +30,17 @@ export function Checkout({ event, onBack }: CheckoutProps) {
             // 2. Create a hidden form and submit to PayHere
             const form = document.createElement("form");
             form.method = "POST";
-            form.action = "https://sandbox.payhere.lk/pay/checkout";
+            // Check if sandbox ID is used to determine URL
+            const isSandbox = paymentData.merchant_id === "4OVyblY3OxU4JH5EsPSamH3PT";
+            form.action = paymentData.action_url || (isSandbox ? "https://sandbox.payhere.lk/pay/checkout" : "https://www.payhere.lk/pay/checkout");
+
+            // Save pending purchase details for success page/verification
+            localStorage.setItem("pending_purchase", JSON.stringify({
+                eventId: event.id,
+                price: event.price,
+                title: event.title,
+                timestamp: Date.now()
+            }));
 
             const params = {
                 merchant_id: paymentData.merchant_id,
