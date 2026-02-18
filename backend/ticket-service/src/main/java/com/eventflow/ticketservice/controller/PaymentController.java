@@ -27,7 +27,8 @@ public class PaymentController {
         Map<String, String> response = new HashMap<>();
         response.put("merchant_id", paymentService.getMerchantId());
         response.put("order_id", orderId);
-        response.put("amount", String.valueOf(amount));
+        String formattedAmount = new java.text.DecimalFormat("0.00").format(amount);
+        response.put("amount", formattedAmount);
         response.put("currency", currency);
         response.put("hash", hash);
         // Add sandbox URL if needed by frontend, or frontend can hardcode it

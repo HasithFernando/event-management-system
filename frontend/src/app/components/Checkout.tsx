@@ -50,7 +50,7 @@ export function Checkout({ event, onBack }: CheckoutProps) {
                 order_id: paymentData.order_id,
                 items: event.title,
                 currency: paymentData.currency,
-                amount: paymentData.amount,
+                amount: paymentData.amount, // Use the formatted string from backend
                 first_name: "John", // Dummy data for sandbox
                 last_name: "Doe",
                 email: "john@example.com",
