@@ -1,12 +1,12 @@
 FROM maven:3.9.4-eclipse-temurin-17 as builder
 WORKDIR /app
 COPY pom.xml .
-RUN mvn dependency:go-offline
+
 COPY src ./src
 RUN mvn clean package -DskipTests
 
-FROM eclipse-temurin:17-jre-alpine
-RUN apk add --no-cache curl
+FROM eclipse-temurin:17-jre
+RUN apt-get update && apt-get install -y curl
 WORKDIR /app
 COPY --from=builder /app/target/*.jar app.jar
 EXPOSE 8761
