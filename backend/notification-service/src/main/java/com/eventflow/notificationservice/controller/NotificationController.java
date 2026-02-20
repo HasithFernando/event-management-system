@@ -41,13 +41,13 @@ public class NotificationController {
 
   private NotificationResponse toResponse(Notification notification) {
     return new NotificationResponse(
-      notification.getId(),
-      notification.getChannel(),
-      notification.getRecipient(),
-      notification.getSubject(),
-      notification.getMessage(),
-      notification.getStatus(),
-      notification.getCreatedAt()
+            notification.getId(),
+            notification.getChannel(),
+            notification.getRecipient(),
+            notification.getSubject(),
+            notification.getMessage(),
+            notification.getStatus(),
+            notification.getCreatedAt()
     );
   }
 }
