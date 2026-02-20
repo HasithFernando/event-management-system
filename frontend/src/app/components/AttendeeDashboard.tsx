@@ -8,10 +8,11 @@ interface AttendeeDashboardProps {
   user: { id: string; name: string; role: string };
   onLogout: () => void;
   onBuyTickets: (event: EventItem) => void;
+  initialTab?: 'discover' | 'tickets';
 }
 
-export function AttendeeDashboard({ user, onLogout, onBuyTickets }: AttendeeDashboardProps) {
-  const [activeTab, setActiveTab] = useState<'discover' | 'tickets'>('discover');
+export function AttendeeDashboard({ user, onLogout, onBuyTickets, initialTab = 'discover' }: AttendeeDashboardProps) {
+  const [activeTab, setActiveTab] = useState<'discover' | 'tickets'>(initialTab);
   const [searchTerm, setSearchTerm] = useState("");
   const [likedEvents, setLikedEvents] = useState<string[]>([]);
   const [events, setEvents] = useState<EventItem[]>([]);

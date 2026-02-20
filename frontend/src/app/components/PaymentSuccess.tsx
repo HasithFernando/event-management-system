@@ -1,4 +1,4 @@
-import { CheckCircle, ArrowLeft, Loader2 } from "lucide-react";
+import { CheckCircle, Loader2, Ticket } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ticketApi } from "../api/eventflow";
 
@@ -77,8 +77,8 @@ export function PaymentSuccess({ onHome }: PaymentSuccessProps) {
                             onClick={onHome}
                             className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 transition-colors"
                         >
-                            <ArrowLeft className="w-4 h-4 mr-2" />
-                            Back to Home
+                            <Ticket className="w-4 h-4 mr-2" />
+                            View My Tickets
                         </button>
                     </>
                 )}
@@ -94,7 +94,7 @@ export function PaymentSuccess({ onHome }: PaymentSuccessProps) {
                             onClick={onHome}
                             className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors"
                         >
-                            <ArrowLeft className="w-4 h-4 mr-2" />
+                            <span className="mr-2">←</span>
                             Back to Home
                         </button>
                     </>

@@ -24,16 +24,20 @@ interface User {
 
 export default function App() {
   const [view, setView] = useState<"landing" | "auth" | "app" | "health" | "checkout" | "payment_success">("landing");
+  const [dashboardKey, setDashboardKey] = useState(0);
+  const [initialTab, setInitialTab] = useState<'discover' | 'tickets'>('discover');
   const [user, setUser] = useState<User | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<EventItem | null>(null);
 
   // Check for health check route and load user from storage
   useEffect(() => {
     const path = window.location.pathname;
+    let targetView: typeof view = 'landing';
+
     if (path === '/health' || window.location.hash === '#/health') {
-      setView('health');
+      targetView = 'health';
     } else if (path === '/payment/success') {
-      setView('payment_success');
+      targetView = 'payment_success';
     }
 
     // Restore user session
@@ -41,12 +45,15 @@ export default function App() {
     if (storedUser) {
       try {
         setUser(JSON.parse(storedUser));
-        if (view === 'landing') setView('app');
+        // Only navigate to app if no special route was detected
+        if (targetView === 'landing') targetView = 'app';
       } catch (e) {
         console.error('Failed to parse user session', e);
         localStorage.removeItem('user');
       }
     }
+
+    setView(targetView);
   }, []);
 
   // Organizer State
@@ -159,11 +166,11 @@ export default function App() {
     }
 
     if (view === "payment_success") {
-      return <PaymentSuccess onHome={() => setView("app")} />;
+      return <PaymentSuccess onHome={() => { setInitialTab('tickets'); setDashboardKey(k => k + 1); setView("app"); }} />;
     }
 
     if (user?.role === "attendee") {
-      return <AttendeeDashboard user={user} onLogout={handleLogout} onBuyTickets={handleBuyTickets} />;
+      return <AttendeeDashboard key={dashboardKey} initialTab={initialTab} user={user} onLogout={handleLogout} onBuyTickets={handleBuyTickets} />;
     }
 
     // Organizer View
