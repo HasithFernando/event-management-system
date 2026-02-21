@@ -1,25 +1,31 @@
-FROM node:18-alpine AS deps
+# Build stage
+FROM node:20-alpine AS builder
+
 WORKDIR /app
-COPY package.json package-lock.json* ./
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
 RUN npm ci
 
-FROM node:18-alpine AS builder
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
+# Copy source code
 COPY . .
+
+# Build the application
 RUN npm run build
 
-FROM node:18-alpine AS runner
-WORKDIR /app
-ENV NODE_ENV production
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+# Production stage
+FROM nginx:alpine
 
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+# Copy built assets from builder
+COPY --from=builder /app/dist /usr/share/nginx/html
 
-USER nextjs
+# Copy nginx configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Expose port
 EXPOSE 3000
-ENV PORT 3000
 
-CMD ["node", "server.js"]
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]
