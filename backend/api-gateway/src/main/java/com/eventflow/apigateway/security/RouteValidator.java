@@ -22,7 +22,10 @@ public class RouteValidator {
 
     // Endpoints that use GET method and don't require auth (public viewing)
     private static final List<String> OPEN_GET_ENDPOINTS = List.of(
-            "/api/events" // Viewing events list (GET only)
+            "/api/events", // Viewing events list (GET only)
+            "/api/attendees", // Viewing attendees list (GET only)
+            "/api/tickets", // Viewing tickets list (GET only)
+            "/api/analytics" // Viewing analytics data (GET only)
     );
 
     public boolean isOpenEndpoint(ServerHttpRequest request) {

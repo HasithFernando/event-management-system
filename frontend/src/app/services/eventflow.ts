@@ -34,7 +34,7 @@ export interface AttendeeItem {
 export interface TicketItem {
   id: string;
   eventId: string;
-  attendeeId: string;
+  userId: string;
   price: number;
   status: string;
   purchasedAt: string;
@@ -74,6 +74,9 @@ export const eventApi = {
 };
 
 export const attendeeApi = {
+  // Note: Attendee service has been removed.
+  // Use ticketApi.list({ eventId }) to get participants for an event.
+  // Each ticket contains a userId that references the user from auth-service.
   list: (eventId?: string) =>
     apiRequest<AttendeeItem[]>(eventId ? `/api/attendees?eventId=${eventId}` : "/api/attendees"),
 
@@ -91,16 +94,16 @@ export const attendeeApi = {
 };
 
 export const ticketApi = {
-  list: (params?: { eventId?: string; attendeeId?: string }) => {
+  list: (params?: { eventId?: string; userId?: string }) => {
     const queryParams = new URLSearchParams();
     if (params?.eventId) queryParams.append("eventId", params.eventId);
-    if (params?.attendeeId) queryParams.append("attendeeId", params.attendeeId);
+    if (params?.userId) queryParams.append("userId", params.userId);
 
     const queryString = queryParams.toString();
     return apiRequest<TicketItem[]>(queryString ? `/api/tickets?${queryString}` : "/api/tickets");
   },
 
-  purchase: (payload: { eventId: string; attendeeId: string; price: number }) =>
+  purchase: (payload: { eventId: string; userId: string; price: number }) =>
     apiRequest<TicketItem>("/api/tickets", {
       method: "POST",
       body: payload
@@ -109,24 +112,13 @@ export const ticketApi = {
 
 export const analyticsApi = {
   overview: async () => {
-    // Aggregate from existing endpoints
     try {
-      const events = await apiRequest<EventItem[]>("/api/events");
-      const bookings = await apiRequest<any[]>("/api/bookings").catch(() => []);
-
-      const totalRevenue = bookings.reduce((sum, b) => sum + (b.totalAmount || 0), 0);
-      const totalAttendees = bookings.length;
-      const eventsHosted = events.length;
-      const avgTicketPrice = totalAttendees > 0 ? totalRevenue / totalAttendees : 0;
-
-      return {
-        totalRevenue: `$${totalRevenue.toFixed(2)}`,
-        totalAttendees: totalAttendees.toString(),
-        eventsHosted: eventsHosted.toString(),
-        avgTicketPrice: `$${avgTicketPrice.toFixed(2)}`,
-      };
+      // Use the analytics service endpoint
+      const overviewData = await apiRequest<AnalyticsOverview>("/api/analytics/overview");
+      return overviewData;
     } catch (error) {
-      // Return mock data if backend not available
+      console.error("Failed to fetch analytics overview:", error);
+      // Return default data if backend not available
       return {
         totalRevenue: "$0.00",
         totalAttendees: "0",
@@ -136,12 +128,19 @@ export const analyticsApi = {
     }
   },
   revenue: async () => {
-    // Return mock revenue data
-    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
-    return months.map((name) => ({
-      name,
-      revenue: Math.floor(Math.random() * 5000) + 1000,
-    }));
+    try {
+      // Use the analytics service endpoint
+      const revenueData = await apiRequest<RevenuePoint[]>("/api/analytics/revenue");
+      return revenueData;
+    } catch (error) {
+      console.error("Failed to fetch revenue data:", error);
+      // Return mock revenue data as fallback
+      const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
+      return months.map((name) => ({
+        name,
+        revenue: Math.floor(Math.random() * 5000) + 1000,
+      }));
+    }
   },
 };
 

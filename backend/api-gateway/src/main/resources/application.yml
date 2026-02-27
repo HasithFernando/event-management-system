@@ -56,16 +56,6 @@ spring:
             - AddResponseHeader=X-Frame-Options,DENY
             - AddResponseHeader=X-XSS-Protection,1;mode=block
 
-        - id: attendee-service
-          uri: lb://attendee-service
-          predicates:
-            - Path=/api/attendees/**
-          filters:
-            - RewritePath=/api/attendees(?<segment>/?.*), /api/attendees$\{segment}
-            - AddResponseHeader=X-Content-Type-Options,nosniff
-            - AddResponseHeader=X-Frame-Options,DENY
-            - AddResponseHeader=X-XSS-Protection,1;mode=block
-
         - id: ticket-service
           uri: lb://ticket-service
           predicates:

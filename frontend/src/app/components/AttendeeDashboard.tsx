@@ -22,7 +22,7 @@ export function AttendeeDashboard() {
       try {
         const [eventsData, ticketsData]: [EventItem[], TicketItem[]] = await Promise.all([
           eventApi.list(),
-          ticketApi.list({ attendeeId: user.id }),
+          ticketApi.list({ userId: user.id }),
         ]);
         setEvents(eventsData);
 
@@ -67,7 +67,7 @@ export function AttendeeDashboard() {
     }
 
     try {
-      const purchasePromise = ticketApi.purchase({ eventId: event.id, attendeeId: user.id, price: event.price });
+      const purchasePromise = ticketApi.purchase({ eventId: event.id, userId: user.id, price: event.price });
       toast.promise(purchasePromise, {
         loading: 'Processing payment...',
         success: `Successfully registered for ${event.title}!`,

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { analyticsApi, eventApi, attendeeApi, type AnalyticsOverview, type EventItem, type RevenuePoint, type AttendeeItem } from "../services/eventflow";
+import { analyticsApi, eventApi, ticketApi, type AnalyticsOverview, type EventItem, type RevenuePoint, type TicketItem } from "../services/eventflow";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { Calendar, Clock, MapPin, DollarSign, Users, TrendingUp, Mail, User } from "lucide-react";
 import { toast } from "sonner";
@@ -19,7 +19,7 @@ export function Dashboard() {
   const [overview, setOverview] = useState<AnalyticsOverview | null>(null);
   const [revenue, setRevenue] = useState<RevenuePoint[]>(fallbackRevenue);
   const [loading, setLoading] = useState(true);
-  const [eventAttendees, setEventAttendees] = useState<Record<string, AttendeeItem[]>>({});
+  const [eventTickets, setEventTickets] = useState<Record<string, TicketItem[]>>({});
   const [expandedEvent, setExpandedEvent] = useState<string | null>(null);
 
   useEffect(() => {
@@ -34,20 +34,20 @@ export function Dashboard() {
         setOverview(overviewData);
         setRevenue(revenueData);
 
-        // Fetch attendees for each event
-        const attendeesMap: Record<string, AttendeeItem[]> = {};
+        // Fetch tickets for each event
+        const ticketsMap: Record<string, TicketItem[]> = {};
         await Promise.all(
           eventsData.map(async (event) => {
             try {
-              const attendees = await attendeeApi.list(event.id);
-              attendeesMap[event.id] = attendees;
+              const tickets = await ticketApi.list({ eventId: event.id });
+              ticketsMap[event.id] = tickets;
             } catch (error) {
-              console.error(`Failed to load attendees for event ${event.id}`, error);
-              attendeesMap[event.id] = [];
+              console.error(`Failed to load tickets for event ${event.id}`, error);
+              ticketsMap[event.id] = [];
             }
           })
         );
-        setEventAttendees(attendeesMap);
+        setEventTickets(ticketsMap);
       } catch (error) {
         console.error(error);
         toast.error("Failed to load dashboard data");
@@ -161,7 +161,7 @@ export function Dashboard() {
             </div>
           ) : (
             events.map((event) => {
-              const attendees = eventAttendees[event.id] || [];
+              const tickets = eventTickets[event.id] || [];
               const isExpanded = expandedEvent === event.id;
 
               return (
@@ -192,7 +192,7 @@ export function Dashboard() {
                       <div className="flex items-center gap-2">
                         <div className="flex items-center gap-2 px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-full">
                           <Users className="w-4 h-4" />
-                          <span className="font-semibold text-sm">{attendees.length}</span>
+                          <span className="font-semibold text-sm">{tickets.length}</span>
                         </div>
                         <svg
                           className={`w-5 h-5 text-gray-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
@@ -208,16 +208,16 @@ export function Dashboard() {
 
                   {isExpanded && (
                     <div className="border-t border-gray-200 bg-gray-50 p-4">
-                      {attendees.length === 0 ? (
+                      {tickets.length === 0 ? (
                         <div className="text-center py-8 text-gray-500">
                           <Users className="w-8 h-8 mx-auto mb-2 text-gray-300" />
-                          <p className="text-sm">No attendees registered yet</p>
+                          <p className="text-sm">No tickets sold yet</p>
                         </div>
                       ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                          {attendees.map((attendee) => (
+                          {tickets.map((ticket) => (
                             <div
-                              key={attendee.id}
+                              key={ticket.id}
                               className="bg-white p-4 rounded-lg border border-gray-200 hover:shadow-sm transition-shadow"
                             >
                               <div className="flex items-start gap-3">
@@ -225,13 +225,13 @@ export function Dashboard() {
                                   <User className="w-5 h-5 text-indigo-600" />
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                  <h4 className="font-medium text-gray-900 truncate">{attendee.name}</h4>
+                                  <h4 className="font-medium text-gray-900 truncate">Ticket #{ticket.id.slice(0, 8)}</h4>
                                   <div className="flex items-center gap-1 mt-1 text-sm text-gray-500">
-                                    <Mail className="w-3.5 h-3.5 flex-shrink-0" />
-                                    <span className="truncate">{attendee.email}</span>
+                                    <DollarSign className="w-3.5 h-3.5 flex-shrink-0" />
+                                    <span>${ticket.price}</span>
                                   </div>
                                   <p className="text-xs text-gray-400 mt-1">
-                                    Registered: {new Date(attendee.registeredAt).toLocaleDateString()}
+                                    Purchased: {new Date(ticket.purchasedAt).toLocaleDateString()}
                                   </p>
                                 </div>
                               </div>

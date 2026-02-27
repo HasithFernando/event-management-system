@@ -35,7 +35,6 @@ public class AnalyticsService {
 
   private static final String EVENT_SERVICE_URL = "http://event-service/api/events";
   private static final String TICKET_SERVICE_URL = "http://ticket-service/api/tickets";
-  private static final String ATTENDEE_SERVICE_URL = "http://attendee-service/api/attendees";
 
   public AnalyticsService(RestTemplate restTemplate, AnalyticsSnapshotRepository snapshotRepository) {
     this.restTemplate = restTemplate;
@@ -45,7 +44,7 @@ public class AnalyticsService {
   public OverviewResponse getOverview() {
     List<EventDTO> events = fetchEvents();
     List<TicketDTO> tickets = fetchTickets();
-    int totalMembers = fetchAttendeeCount();
+    int totalMembers = countUniqueUsers(tickets);
 
     int totalEvents = events.size();
     int totalTicketsSold = tickets.size();
@@ -117,7 +116,7 @@ public class AnalyticsService {
   public AnalyticsSnapshot saveSnapshot() {
     List<EventDTO> events = fetchEvents();
     List<TicketDTO> tickets = fetchTickets();
-    int totalMembers = fetchAttendeeCount();
+    int totalMembers = countUniqueUsers(tickets);
 
     BigDecimal totalRevenue = tickets.stream()
         .map(TicketDTO::getPrice)
@@ -173,18 +172,12 @@ public class AnalyticsService {
     }
   }
 
-  private int fetchAttendeeCount() {
-    try {
-      ResponseEntity<List<Object>> response = restTemplate.exchange(
-          ATTENDEE_SERVICE_URL,
-          HttpMethod.GET,
-          null,
-          new ParameterizedTypeReference<List<Object>>() {}
-      );
-      return response.getBody() != null ? response.getBody().size() : 0;
-    } catch (Exception e) {
-      return 0;
-    }
+  private int countUniqueUsers(List<TicketDTO> tickets) {
+    return (int) tickets.stream()
+        .map(TicketDTO::getUserId)
+        .filter(Objects::nonNull)
+        .distinct()
+        .count();
   }
 
   private String formatDecimal(BigDecimal value) {

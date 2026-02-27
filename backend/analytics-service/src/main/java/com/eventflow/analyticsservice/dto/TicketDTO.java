@@ -6,7 +6,7 @@ public class TicketDTO {
 
   private String id;
   private String eventId;
-  private String attendeeId;
+  private String userId;
   private BigDecimal price;
   private String status;
   private String purchasedAt;
@@ -30,12 +30,12 @@ public class TicketDTO {
     this.eventId = eventId;
   }
 
-  public String getAttendeeId() {
-    return attendeeId;
+  public String getUserId() {
+    return userId;
   }
 
-  public void setAttendeeId(String attendeeId) {
-    this.attendeeId = attendeeId;
+  public void setUserId(String userId) {
+    this.userId = userId;
   }
 
   public BigDecimal getPrice() {

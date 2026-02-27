@@ -12,6 +12,7 @@ import { OrganizerLayout } from './layouts/OrganizerLayout';
 import { Dashboard } from './pages/Dashboard';
 import { EventList } from './components/EventList';
 import { CreateEvent } from './components/CreateEvent';
+import { EventDetail } from './pages/EventDetail';
 import { Attendees } from './components/Attendees';
 import { Settings } from './components/Settings';
 import { AdminDashboard } from './pages/AdminDashboard';
@@ -53,6 +54,7 @@ export default function App() {
               <Route index element={<Dashboard />} />
               <Route path="events" element={<EventList />} />
               <Route path="events/create" element={<CreateEvent />} />
+              <Route path="events/:id" element={<EventDetail />} />
               <Route path="attendees" element={<Attendees />} />
               <Route path="settings" element={<Settings />} />
               <Route 

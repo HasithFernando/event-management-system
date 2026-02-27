@@ -41,8 +41,8 @@ public class TicketController {
 
   @GetMapping
   public List<TicketResponse> list(@RequestParam(required = false) UUID eventId,
-                                   @RequestParam(required = false) UUID attendeeId) {
-    return ticketService.list(eventId, attendeeId).stream().map(this::toResponse).toList();
+                                   @RequestParam(required = false) UUID userId) {
+    return ticketService.list(eventId, userId).stream().map(this::toResponse).toList();
   }
 
   @GetMapping("/count")
@@ -65,7 +65,7 @@ public class TicketController {
     return new TicketResponse(
       ticket.getId(),
       ticket.getEventId(),
-      ticket.getAttendeeId(),
+      ticket.getUserId(),
       ticket.getPrice(),
       ticket.getStatus(),
       ticket.getPurchasedAt()

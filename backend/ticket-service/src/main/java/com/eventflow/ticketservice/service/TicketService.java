@@ -21,7 +21,7 @@ public class TicketService {
   public Ticket purchase(TicketPurchaseRequest request) {
     Ticket ticket = new Ticket();
     ticket.setEventId(request.getEventId());
-    ticket.setAttendeeId(request.getAttendeeId());
+    ticket.setUserId(request.getUserId());
     ticket.setPrice(request.getPrice());
     ticket.setStatus("Confirmed");
     ticket.setPurchasedAt(LocalDateTime.now());
@@ -34,12 +34,12 @@ public class TicketService {
       .orElseThrow(() -> new IllegalArgumentException("Ticket not found"));
   }
 
-  public List<Ticket> list(UUID eventId, UUID attendeeId) {
+  public List<Ticket> list(UUID eventId, UUID userId) {
     if (eventId != null) {
       return ticketRepository.findByEventId(eventId);
     }
-    if (attendeeId != null) {
-      return ticketRepository.findByAttendeeId(attendeeId);
+    if (userId != null) {
+      return ticketRepository.findByUserId(userId);
     }
     return ticketRepository.findAll();
   }
