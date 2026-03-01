@@ -162,7 +162,7 @@ public class PaymentService {
         try {
             Map<String, Object> ticketRequest = new HashMap<>();
             ticketRequest.put("eventId", payment.getEventId().toString());
-            ticketRequest.put("userId", payment.getUserId().toString());
+            ticketRequest.put("attendeeId", payment.getUserId().toString());
             ticketRequest.put("price", payment.getAmount());
 
             HttpHeaders headers = new HttpHeaders();
