@@ -60,6 +60,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [events, setEvents] = useState<EventItem[]>([]);
+  const [editingEvent, setEditingEvent] = useState<EventItem | null>(null);
 
   useEffect(() => {
     const loadEvents = async () => {
@@ -123,8 +124,8 @@ export default function App() {
   const renderOrganizerContent = () => {
     switch (activeTab) {
       case "dashboard": return <Dashboard events={events} />;
-      case "events": return <EventList events={events} onCreateClick={() => setActiveTab("create-event")} onBuyTickets={handleBuyTickets} />;
-      case "create-event": return <CreateEvent onSave={handleCreateEvent} onCancel={() => setActiveTab("events")} />;
+      case "events": return <EventList events={events} userRole={user?.role} onCreateClick={() => setActiveTab("create-event")} onBuyTickets={handleBuyTickets} onEditEvent={(event) => { setEditingEvent(event); setActiveTab("create-event"); }} />;
+      case "create-event": return <CreateEvent onSave={handleCreateEvent} onCancel={() => { setActiveTab("events"); setEditingEvent(null); }} />;
       case "attendees": return <Attendees />;
       case "settings": return <Settings />;
       default: return <Dashboard events={events} />;
