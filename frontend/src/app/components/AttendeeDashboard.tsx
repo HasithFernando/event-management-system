@@ -19,7 +19,7 @@ export function AttendeeDashboard({ user, onLogout, onBuyTickets, initialTab = '
   const [myTickets, setMyTickets] = useState<EventItem[]>([]);
   const [cancelledPayments, setCancelledPayments] = useState<PaymentStatus[]>([]);
   const [refundingOrderId, setRefundingOrderId] = useState<string | null>(null);
-  const [refundSuccessOrderId, setRefundSuccessOrderId] = useState<string | null>(null);
+  const [refundedOrderIds, setRefundedOrderIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const loadData = async () => {
@@ -34,11 +34,17 @@ export function AttendeeDashboard({ user, onLogout, onBuyTickets, initialTab = '
         // Build a set of current event IDs
         const allEventIds = new Set(eventsData.map(e => e.id));
 
-        // Find COMPLETED payments belonging to this user for events that no longer exist
+        // Find COMPLETED or REFUNDED payments belonging to this user for events that no longer exist
         const cancelled = userPayments.filter(
-          p => p.status === 'COMPLETED' && !allEventIds.has(p.eventId)
+          p => (p.status === 'COMPLETED' || p.status === 'REFUNDED') && !allEventIds.has(p.eventId)
         );
         setCancelledPayments(cancelled);
+
+        // Pre-mark any already-refunded payments as success (so they show green card on load)
+        const alreadyRefunded = new Set(cancelled.filter(p => p.status === 'REFUNDED').map(p => p.orderId));
+        if (alreadyRefunded.size > 0) {
+          setRefundedOrderIds(alreadyRefunded);
+        }
 
         // For active tickets, load from ticket service as normal
         const ticketsData: TicketItem[] = await ticketApi.list({ attendeeId: user.id }).catch(() => []);
@@ -237,7 +243,7 @@ export function AttendeeDashboard({ user, onLogout, onBuyTickets, initialTab = '
               <div className="space-y-4">
                 {/* Cancelled event refund banners */}
                 {cancelledPayments.map((payment) => (
-                  refundSuccessOrderId === payment.orderId ? (
+                  refundedOrderIds.has(payment.orderId) ? (
                     // Refund success — show green confirmation card with event info
                     <div key={payment.orderId} className="bg-green-50 border border-green-200 rounded-xl p-5 flex flex-col md:flex-row gap-4 items-center animate-in fade-in duration-500">
                       <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
@@ -277,7 +283,7 @@ export function AttendeeDashboard({ user, onLogout, onBuyTickets, initialTab = '
                             setRefundingOrderId(payment.orderId);
                             try {
                               await paymentApi.refundPayment(payment.orderId);
-                              setRefundSuccessOrderId(payment.orderId);
+                              setRefundedOrderIds(prev => new Set([...prev, payment.orderId]));
                               toast.success('Refund processed successfully!');
                             } catch {
                               toast.error('Refund failed. Please contact support.');
