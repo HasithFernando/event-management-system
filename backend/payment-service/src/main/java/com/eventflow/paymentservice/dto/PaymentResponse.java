@@ -17,6 +17,10 @@ public class PaymentResponse {
     private String lastName;
     private String email;
     private String eventTitle;
+    private String bankName;
+    private String bankBranch;
+    private String bankAccountName;
+    private String bankAccountNumber;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -114,6 +118,38 @@ public class PaymentResponse {
 
     public void setEventTitle(String eventTitle) {
         this.eventTitle = eventTitle;
+    }
+
+    public String getBankName() {
+        return bankName;
+    }
+
+    public void setBankName(String bankName) {
+        this.bankName = bankName;
+    }
+
+    public String getBankBranch() {
+        return bankBranch;
+    }
+
+    public void setBankBranch(String bankBranch) {
+        this.bankBranch = bankBranch;
+    }
+
+    public String getBankAccountName() {
+        return bankAccountName;
+    }
+
+    public void setBankAccountName(String bankAccountName) {
+        this.bankAccountName = bankAccountName;
+    }
+
+    public String getBankAccountNumber() {
+        return bankAccountNumber;
+    }
+
+    public void setBankAccountNumber(String bankAccountNumber) {
+        this.bankAccountNumber = bankAccountNumber;
     }
 
     public LocalDateTime getCreatedAt() {

@@ -41,54 +41,167 @@ public class Payment {
   private String phone;
   private String eventTitle;
 
+  // Bank details for manual refund
+  private String bankName;
+  private String bankBranch;
+  private String bankAccountName;
+  private String bankAccountNumber;
+
   @Column(nullable = false)
   private LocalDateTime createdAt;
 
   private LocalDateTime updatedAt;
 
   // Getters and setters
-  public UUID getId() { return id; }
-  public void setId(UUID id) { this.id = id; }
+  public UUID getId() {
+    return id;
+  }
 
-  public String getOrderId() { return orderId; }
-  public void setOrderId(String orderId) { this.orderId = orderId; }
+  public void setId(UUID id) {
+    this.id = id;
+  }
 
-  public UUID getEventId() { return eventId; }
-  public void setEventId(UUID eventId) { this.eventId = eventId; }
+  public String getOrderId() {
+    return orderId;
+  }
 
-  public UUID getUserId() { return userId; }
-  public void setUserId(UUID userId) { this.userId = userId; }
+  public void setOrderId(String orderId) {
+    this.orderId = orderId;
+  }
 
-  public BigDecimal getAmount() { return amount; }
-  public void setAmount(BigDecimal amount) { this.amount = amount; }
+  public UUID getEventId() {
+    return eventId;
+  }
 
-  public String getCurrency() { return currency; }
-  public void setCurrency(String currency) { this.currency = currency; }
+  public void setEventId(UUID eventId) {
+    this.eventId = eventId;
+  }
 
-  public String getStatus() { return status; }
-  public void setStatus(String status) { this.status = status; }
+  public UUID getUserId() {
+    return userId;
+  }
 
-  public String getPaymentId() { return paymentId; }
-  public void setPaymentId(String paymentId) { this.paymentId = paymentId; }
+  public void setUserId(UUID userId) {
+    this.userId = userId;
+  }
 
-  public String getFirstName() { return firstName; }
-  public void setFirstName(String firstName) { this.firstName = firstName; }
+  public BigDecimal getAmount() {
+    return amount;
+  }
 
-  public String getLastName() { return lastName; }
-  public void setLastName(String lastName) { this.lastName = lastName; }
+  public void setAmount(BigDecimal amount) {
+    this.amount = amount;
+  }
 
-  public String getEmail() { return email; }
-  public void setEmail(String email) { this.email = email; }
+  public String getCurrency() {
+    return currency;
+  }
 
-  public String getPhone() { return phone; }
-  public void setPhone(String phone) { this.phone = phone; }
+  public void setCurrency(String currency) {
+    this.currency = currency;
+  }
 
-  public String getEventTitle() { return eventTitle; }
-  public void setEventTitle(String eventTitle) { this.eventTitle = eventTitle; }
+  public String getStatus() {
+    return status;
+  }
 
-  public LocalDateTime getCreatedAt() { return createdAt; }
-  public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+  public void setStatus(String status) {
+    this.status = status;
+  }
 
-  public LocalDateTime getUpdatedAt() { return updatedAt; }
-  public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+  public String getPaymentId() {
+    return paymentId;
+  }
+
+  public void setPaymentId(String paymentId) {
+    this.paymentId = paymentId;
+  }
+
+  public String getFirstName() {
+    return firstName;
+  }
+
+  public void setFirstName(String firstName) {
+    this.firstName = firstName;
+  }
+
+  public String getLastName() {
+    return lastName;
+  }
+
+  public void setLastName(String lastName) {
+    this.lastName = lastName;
+  }
+
+  public String getEmail() {
+    return email;
+  }
+
+  public void setEmail(String email) {
+    this.email = email;
+  }
+
+  public String getPhone() {
+    return phone;
+  }
+
+  public void setPhone(String phone) {
+    this.phone = phone;
+  }
+
+  public String getEventTitle() {
+    return eventTitle;
+  }
+
+  public void setEventTitle(String eventTitle) {
+    this.eventTitle = eventTitle;
+  }
+
+  public String getBankName() {
+    return bankName;
+  }
+
+  public void setBankName(String bankName) {
+    this.bankName = bankName;
+  }
+
+  public String getBankBranch() {
+    return bankBranch;
+  }
+
+  public void setBankBranch(String bankBranch) {
+    this.bankBranch = bankBranch;
+  }
+
+  public String getBankAccountName() {
+    return bankAccountName;
+  }
+
+  public void setBankAccountName(String bankAccountName) {
+    this.bankAccountName = bankAccountName;
+  }
+
+  public String getBankAccountNumber() {
+    return bankAccountNumber;
+  }
+
+  public void setBankAccountNumber(String bankAccountNumber) {
+    this.bankAccountNumber = bankAccountNumber;
+  }
+
+  public LocalDateTime getCreatedAt() {
+    return createdAt;
+  }
+
+  public void setCreatedAt(LocalDateTime createdAt) {
+    this.createdAt = createdAt;
+  }
+
+  public LocalDateTime getUpdatedAt() {
+    return updatedAt;
+  }
+
+  public void setUpdatedAt(LocalDateTime updatedAt) {
+    this.updatedAt = updatedAt;
+  }
 }

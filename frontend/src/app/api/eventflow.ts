@@ -197,6 +197,10 @@ export interface PaymentStatus {
   lastName: string;
   email: string;
   eventTitle: string;
+  bankName?: string;
+  bankBranch?: string;
+  bankAccountName?: string;
+  bankAccountNumber?: string;
   createdAt: string;
   updatedAt: string | null;
 }
@@ -217,7 +221,13 @@ export const paymentApi = {
   getByUserId: (userId: string) =>
     apiRequest<PaymentStatus[]>(`/api/payment/user/${userId}`),
 
-  refundPayment: (orderId: string) =>
-    apiRequest<void>(`/api/payment/refund/${orderId}`, { method: "POST" }),
+  getAllRefunds: () =>
+    apiRequest<PaymentStatus[]>(`/api/payment/refunds`),
+
+  markRefundDone: (orderId: string) =>
+    apiRequest<void>(`/api/payment/refund-done/${orderId}`, { method: "POST" }),
+
+  refundPayment: (orderId: string, bankDetails?: { bankName: string; bankBranch: string; bankAccountName: string; bankAccountNumber: string }) =>
+    apiRequest<void>(`/api/payment/refund/${orderId}`, { method: "POST", body: bankDetails }),
 };
 

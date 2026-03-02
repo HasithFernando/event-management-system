@@ -149,7 +149,7 @@ public class PaymentService {
         return paymentRepository.findByUserId(userId);
     }
 
-    public void refundPayment(String orderId) {
+    public void refundPayment(String orderId, java.util.Map<String, String> bankDetails) {
         Optional<Payment> paymentOpt = paymentRepository.findByOrderId(orderId);
         if (paymentOpt.isEmpty()) {
             throw new IllegalArgumentException("Payment not found for orderId: " + orderId);
@@ -157,8 +157,34 @@ public class PaymentService {
         Payment payment = paymentOpt.get();
         payment.setStatus("REFUNDED");
         payment.setUpdatedAt(LocalDateTime.now());
+        if (bankDetails != null) {
+            if (bankDetails.get("bankName") != null)
+                payment.setBankName(bankDetails.get("bankName"));
+            if (bankDetails.get("bankBranch") != null)
+                payment.setBankBranch(bankDetails.get("bankBranch"));
+            if (bankDetails.get("bankAccountName") != null)
+                payment.setBankAccountName(bankDetails.get("bankAccountName"));
+            if (bankDetails.get("bankAccountNumber") != null)
+                payment.setBankAccountNumber(bankDetails.get("bankAccountNumber"));
+        }
         paymentRepository.save(payment);
         log.info("Payment refunded for order {}", orderId);
+    }
+
+    public List<Payment> getRefunds() {
+        return paymentRepository.findByStatusIn(java.util.List.of("REFUNDED", "REFUND_DONE"));
+    }
+
+    public void markRefundDone(String orderId) {
+        Optional<Payment> paymentOpt = paymentRepository.findByOrderId(orderId);
+        if (paymentOpt.isEmpty()) {
+            throw new IllegalArgumentException("Payment not found for orderId: " + orderId);
+        }
+        Payment payment = paymentOpt.get();
+        payment.setStatus("REFUND_DONE");
+        payment.setUpdatedAt(LocalDateTime.now());
+        paymentRepository.save(payment);
+        log.info("Refund marked as done for order {}", orderId);
     }
 
     public void simulateNotificationForDev(String orderId) {

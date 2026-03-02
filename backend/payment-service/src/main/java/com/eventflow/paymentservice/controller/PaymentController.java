@@ -70,8 +70,22 @@ public class PaymentController {
     }
 
     @PostMapping("/refund/{orderId}")
-    public ResponseEntity<Void> refundPayment(@PathVariable String orderId) {
-        paymentService.refundPayment(orderId);
+    public ResponseEntity<Void> refundPayment(
+            @PathVariable String orderId,
+            @RequestBody(required = false) java.util.Map<String, String> bankDetails) {
+        paymentService.refundPayment(orderId, bankDetails);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/refunds")
+    public ResponseEntity<java.util.List<PaymentResponse>> getRefunds() {
+        return ResponseEntity.ok(
+                paymentService.getRefunds().stream().map(this::toResponse).toList());
+    }
+
+    @PostMapping("/refund-done/{orderId}")
+    public ResponseEntity<Void> markRefundDone(@PathVariable String orderId) {
+        paymentService.markRefundDone(orderId);
         return ResponseEntity.ok().build();
     }
 
@@ -95,6 +109,10 @@ public class PaymentController {
         resp.setLastName(payment.getLastName());
         resp.setEmail(payment.getEmail());
         resp.setEventTitle(payment.getEventTitle());
+        resp.setBankName(payment.getBankName());
+        resp.setBankBranch(payment.getBankBranch());
+        resp.setBankAccountName(payment.getBankAccountName());
+        resp.setBankAccountNumber(payment.getBankAccountNumber());
         resp.setCreatedAt(payment.getCreatedAt());
         resp.setUpdatedAt(payment.getUpdatedAt());
         return resp;

@@ -11,6 +11,7 @@ import { CreateEvent } from "./components/CreateEvent";
 import { HealthCheck } from "./components/HealthCheck";
 import { Checkout } from "./components/Checkout";
 import { PaymentSuccess } from "./components/PaymentSuccess";
+import { RefundsManagement } from "./components/RefundsManagement";
 import { Menu, Calendar } from "lucide-react";
 import { Toaster, toast } from "sonner";
 import { authApi, eventApi, paymentApi, type AuthResponse, type EventItem, type UserRole } from "./api/eventflow";
@@ -168,6 +169,7 @@ export default function App() {
       case "events": return <EventList events={events} userRole={user?.role} onCreateClick={() => setActiveTab("create-event")} onBuyTickets={handleBuyTickets} onEditEvent={(event) => { setEditingEvent(event); setActiveTab("create-event"); }} onDeleteEvent={handleDeleteEvent} />;
       case "create-event": return <CreateEvent initialData={editingEvent} onSave={handleCreateEvent} onCancel={() => { setActiveTab("events"); setEditingEvent(null); }} />;
       case "attendees": return <Attendees />;
+      case "refunds": return <RefundsManagement />;
       case "settings": return <Settings />;
       default: return <Dashboard events={events} />;
     }
