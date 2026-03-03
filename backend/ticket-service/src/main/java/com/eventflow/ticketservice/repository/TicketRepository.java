@@ -9,5 +9,6 @@ import java.util.UUID;
 public interface TicketRepository extends JpaRepository<Ticket, UUID> {
   List<Ticket> findByEventId(UUID eventId);
   List<Ticket> findByUserId(UUID userId);
+  List<Ticket> findByEventIdAndUserId(UUID eventId, UUID userId);
 }
 

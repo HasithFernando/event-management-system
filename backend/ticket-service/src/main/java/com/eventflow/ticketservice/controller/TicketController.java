@@ -35,8 +35,9 @@ public class TicketController {
   }
 
   @PostMapping
-  public ResponseEntity<TicketResponse> purchase(@Valid @RequestBody TicketPurchaseRequest request) {
-    return ResponseEntity.ok(toResponse(ticketService.purchase(request)));
+  public ResponseEntity<List<TicketResponse>> purchase(@Valid @RequestBody TicketPurchaseRequest request) {
+    List<Ticket> tickets = ticketService.purchase(request);
+    return ResponseEntity.ok(tickets.stream().map(this::toResponse).toList());
   }
 
   @GetMapping("/{id}")

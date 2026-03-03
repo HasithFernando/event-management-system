@@ -2,6 +2,7 @@ package com.eventflow.eventservice.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Min;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -25,6 +26,10 @@ public class EventCreateRequest {
 
   @NotNull
   private BigDecimal price;
+
+  @NotNull
+  @Min(value = 1, message = "Max tickets must be at least 1")
+  private Integer maxTickets;
 
   @NotBlank
   private String description;
@@ -79,6 +84,14 @@ public class EventCreateRequest {
 
   public void setPrice(BigDecimal price) {
     this.price = price;
+  }
+
+  public Integer getMaxTickets() {
+    return maxTickets;
+  }
+
+  public void setMaxTickets(Integer maxTickets) {
+    this.maxTickets = maxTickets;
   }
 
   public String getDescription() {

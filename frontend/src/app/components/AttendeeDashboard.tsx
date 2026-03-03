@@ -13,7 +13,8 @@ export function AttendeeDashboard() {
   const [searchTerm, setSearchTerm] = useState("");
   const [likedEvents, setLikedEvents] = useState<string[]>([]);
   const [events, setEvents] = useState<EventItem[]>([]);
-  const [myTickets, setMyTickets] = useState<EventItem[]>([]);
+  const [myTickets, setMyTickets] = useState<TicketItem[]>([]);
+  const [myTicketedEvents, setMyTicketedEvents] = useState<EventItem[]>([]);
 
   useEffect(() => {
     if (!user) return;
@@ -25,10 +26,11 @@ export function AttendeeDashboard() {
           ticketApi.list({ userId: user.id }),
         ]);
         setEvents(eventsData);
+        setMyTickets(ticketsData);
 
         const ticketEventIds = new Set(ticketsData.map((ticket) => ticket.eventId));
         const userTicketedEvents = eventsData.filter(e => ticketEventIds.has(e.id));
-        setMyTickets(userTicketedEvents);
+        setMyTicketedEvents(userTicketedEvents);
       } catch (error) {
         console.error(error);
         toast.error("Failed to load data");
@@ -60,7 +62,7 @@ export function AttendeeDashboard() {
       return;
     }
 
-    if (myTickets.some((ticket) => ticket.id === event.id)) {
+    if (myTicketedEvents.some((ticketedEvent) => ticketedEvent.id === event.id)) {
       toast.error("You already have a ticket for this event!");
       setActiveTab('tickets');
       return;
@@ -165,7 +167,7 @@ export function AttendeeDashboard() {
                         <Heart className={clsx("w-4 h-4", likedEvents.includes(event.id) ? "fill-red-500 text-red-500" : "text-gray-400")} />
                       </button>
                       <div className="absolute top-3 left-3 px-2 py-1 rounded text-xs font-semibold text-gray-900 bg-white/90 shadow-sm">
-                        ${event.price}
+                        LKR {event.price}
                       </div>
                     </div>
 
@@ -194,12 +196,12 @@ export function AttendeeDashboard() {
                         onClick={() => handleBuyTicket(event)}
                         className={clsx(
                           "w-full mt-4 py-2 rounded-lg text-sm font-medium transition-colors",
-                          myTickets.some(t => t.id === event.id)
+                          myTicketedEvents.some(t => t.id === event.id)
                             ? "bg-green-50 text-green-700 border border-green-200 cursor-default"
                             : "bg-gray-900 text-white hover:bg-gray-800"
                         )}
                       >
-                        {myTickets.some(t => t.id === event.id) ? "Ticket Purchased" : "Purchase Ticket"}
+                        {myTicketedEvents.some(t => t.id === event.id) ? "Ticket Purchased" : "Purchase Ticket"}
                       </button>
                     </div>
                   </div>
@@ -216,11 +218,13 @@ export function AttendeeDashboard() {
         ) : (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-4xl mx-auto">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">My Tickets</h2>
-              <span className="text-gray-500 text-sm">{myTickets.length} active tickets</span>
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">My Tickets</h2>
+                <p className="text-sm text-gray-500 mt-1">{myTickets.length} {myTickets.length === 1 ? 'ticket' : 'tickets'} • {myTicketedEvents.length} {myTicketedEvents.length === 1 ? 'event' : 'events'}</p>
+              </div>
             </div>
 
-            {myTickets.length === 0 ? (
+            {myTicketedEvents.length === 0 ? (
               <div className="text-center py-24 bg-white rounded-2xl border border-gray-100 border-dashed">
                 <Ticket className="w-12 h-12 text-gray-300 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900">No tickets yet</h3>
@@ -234,41 +238,46 @@ export function AttendeeDashboard() {
               </div>
             ) : (
               <div className="space-y-4">
-                {myTickets.map((event) => (
-                  <div key={event.id} className="bg-white p-4 md:p-6 rounded-xl border border-gray-100 shadow-sm flex flex-col md:flex-row gap-6 hover:shadow-md transition-shadow">
-                    <div className="w-full md:w-48 h-32 rounded-lg overflow-hidden flex-shrink-0">
-                      <img src={event.imageUrl || ""} alt={event.title} className="w-full h-full object-cover" />
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h3 className="text-xl font-bold text-gray-900">{event.title}</h3>
-                          <div className="flex items-center text-gray-500 text-sm mt-1">
-                            <Calendar className="w-4 h-4 mr-1.5" />
-                            {event.date} at {event.time}
+                {myTicketedEvents.map((event) => {
+                  const eventTicketCount = myTickets.filter(t => t.eventId === event.id).length;
+                  return (
+                    <div key={event.id} className="bg-white p-4 md:p-6 rounded-xl border border-gray-100 shadow-sm flex flex-col md:flex-row gap-6 hover:shadow-md transition-shadow">
+                      <div className="w-full md:w-48 h-32 rounded-lg overflow-hidden flex-shrink-0">
+                        <img src={event.imageUrl || ""} alt={event.title} className="w-full h-full object-cover" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h3 className="text-xl font-bold text-gray-900">{event.title}</h3>
+                            <div className="flex items-center gap-2 mt-1">
+                              <span className="text-xs text-gray-500">
+                                <Calendar className="w-4 h-4 inline mr-1.5" />
+                                {event.date} at {event.time}
+                              </span>
+                            </div>
+                            <div className="flex items-center text-gray-500 text-sm mt-1">
+                              <MapPin className="w-4 h-4 mr-1.5" />
+                              {event.location}
+                            </div>
                           </div>
-                          <div className="flex items-center text-gray-500 text-sm mt-1">
-                            <MapPin className="w-4 h-4 mr-1.5" />
-                            {event.location}
-                          </div>
+                          <span className="px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full uppercase tracking-wide flex items-center whitespace-nowrap">
+                            <CheckCircle className="w-3 h-3 mr-1" />
+                            {eventTicketCount} {eventTicketCount === 1 ? 'Ticket' : 'Tickets'}
+                          </span>
                         </div>
-                        <span className="px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full uppercase tracking-wide flex items-center">
-                          <CheckCircle className="w-3 h-3 mr-1" />
-                          Confirmed
-                        </span>
-                      </div>
-                      <div className="mt-6 flex gap-3">
-                        <button className="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors shadow-sm">
-                          <Ticket className="w-4 h-4 mr-2" />
-                          View Ticket
-                        </button>
-                        <button className="px-4 py-2 border border-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
-                          Add to Calendar
-                        </button>
+                        <div className="mt-6">
+                          <button 
+                            onClick={() => navigate('/attendee/tickets')}
+                            className="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors shadow-sm"
+                          >
+                            <Ticket className="w-4 h-4 mr-2" />
+                            View & Download Tickets
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>

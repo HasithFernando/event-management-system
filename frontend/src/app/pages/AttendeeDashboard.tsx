@@ -1,4 +1,4 @@
-import { eventApi, ticketApi, type EventItem } from "../services/eventflow";
+import { eventApi, ticketApi, type EventItem, type TicketItem } from "../services/eventflow";
 import { Calendar, MapPin, Ticket, TrendingUp, Clock, Sparkles } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -9,7 +9,7 @@ export function AttendeeDashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [upcomingEvents, setUpcomingEvents] = useState<EventItem[]>([]);
-  const [myTickets, setMyTickets] = useState<EventItem[]>([]);
+  const [myTickets, setMyTickets] = useState<TicketItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -23,10 +23,8 @@ export function AttendeeDashboard() {
           ticketApi.list({ userId: user.id }),
         ]);
 
-        const ticketEventIds = new Set(ticketsData.map((ticket) => ticket.eventId));
-        const userTicketedEvents = eventsData.filter(e => ticketEventIds.has(e.id));
-        
-        setMyTickets(userTicketedEvents);
+        // Store all user tickets (not just unique events)
+        setMyTickets(ticketsData);
         setUpcomingEvents(eventsData.slice(0, 6));
       } catch (error) {
         console.error(error);
@@ -38,6 +36,10 @@ export function AttendeeDashboard() {
 
     void loadDashboardData();
   }, [user?.id]);
+
+  // Get unique event IDs for display purposes
+  const uniqueEventIds = new Set(myTickets.map(t => t.eventId));
+  const myTicketedEvents = upcomingEvents.filter(e => uniqueEventIds.has(e.id));
 
   if (loading) {
     return (
@@ -90,14 +92,14 @@ export function AttendeeDashboard() {
         <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-500">Upcoming</p>
-              <p className="text-3xl font-bold text-gray-900 mt-2">{myTickets.length}</p>
+              <p className="text-sm font-medium text-gray-500">Events Attending</p>
+              <p className="text-3xl font-bold text-gray-900 mt-2">{myTicketedEvents.length}</p>
             </div>
             <div className="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center">
               <Clock className="w-6 h-6 text-purple-600" />
             </div>
           </div>
-          <p className="text-sm text-gray-500 mt-4">Events you're attending</p>
+          <p className="text-sm text-gray-500 mt-4">Unique events you're attending</p>
         </div>
       </div>
 
@@ -130,7 +132,7 @@ export function AttendeeDashboard() {
       </div>
 
       {/* My Upcoming Events */}
-      {myTickets.length > 0 && (
+      {myTicketedEvents.length > 0 && (
         <div>
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold text-gray-900">My Upcoming Events</h2>
@@ -142,31 +144,41 @@ export function AttendeeDashboard() {
             </button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {myTickets.slice(0, 4).map((event) => (
-              <div key={event.id} className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow group">
-                <div className="flex flex-col sm:flex-row gap-4 p-4">
-                  <div className="w-full sm:w-32 h-32 rounded-lg overflow-hidden flex-shrink-0">
-                    <img src={event.imageUrl || ""} alt={event.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-lg text-gray-900 mb-1 truncate">{event.title}</h3>
-                    <span className="inline-block px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 text-xs font-medium mb-2">
-                      {event.category}
-                    </span>
-                    <div className="space-y-1 text-sm text-gray-600">
-                      <div className="flex items-center gap-2">
-                        <Calendar className="w-4 h-4 text-gray-400" />
-                        <span className="truncate">{event.date} • {event.time}</span>
+            {myTicketedEvents.slice(0, 4).map((event) => {
+              const eventTicketCount = myTickets.filter(t => t.eventId === event.id).length;
+              return (
+                <div key={event.id} className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow group">
+                  <div className="flex flex-col sm:flex-row gap-4 p-4">
+                    <div className="w-full sm:w-32 h-32 rounded-lg overflow-hidden flex-shrink-0">
+                      <img src={event.imageUrl || ""} alt={event.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between">
+                        <h3 className="font-bold text-lg text-gray-900 mb-1 truncate">{event.title}</h3>
+                        {eventTicketCount > 1 && (
+                          <span className="ml-2 px-2 py-0.5 bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-full whitespace-nowrap">
+                            {eventTicketCount} tickets
+                          </span>
+                        )}
                       </div>
-                      <div className="flex items-center gap-2">
-                        <MapPin className="w-4 h-4 text-gray-400" />
-                        <span className="truncate">{event.location}</span>
+                      <span className="inline-block px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 text-xs font-medium mb-2">
+                        {event.category}
+                      </span>
+                      <div className="space-y-1 text-sm text-gray-600">
+                        <div className="flex items-center gap-2">
+                          <Calendar className="w-4 h-4 text-gray-400" />
+                          <span className="truncate">{event.date} • {event.time}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <MapPin className="w-4 h-4 text-gray-400" />
+                          <span className="truncate">{event.location}</span>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
@@ -188,7 +200,7 @@ export function AttendeeDashboard() {
               <div className="relative h-40 overflow-hidden">
                 <img src={event.imageUrl || ""} alt={event.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 <div className="absolute top-3 left-3 px-2 py-1 rounded text-xs font-semibold text-gray-900 bg-white/90 shadow-sm">
-                  ${event.price}
+                  LKR {event.price}
                 </div>
               </div>
               <div className="p-4">

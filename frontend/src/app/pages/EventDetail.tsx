@@ -166,7 +166,7 @@ export function EventDetail() {
                 <DollarSign className="w-4 h-4" />
                 <span className="text-xs font-medium">Ticket Price</span>
               </div>
-              <p className="font-bold text-gray-900">${event.price}</p>
+              <p className="font-bold text-gray-900">LKR {event.price}</p>
             </div>
             
             <div className="p-4 bg-blue-50 rounded-lg border border-blue-100">
@@ -211,7 +211,7 @@ export function EventDetail() {
                         <h4 className="font-medium text-gray-900 truncate">Ticket #{ticket.id.slice(0, 8)}</h4>
                         <div className="flex items-center gap-1 mt-1 text-sm text-gray-500">
                           <DollarSign className="w-3.5 h-3.5 flex-shrink-0" />
-                          <span>${ticket.price}</span>
+                          <span>LKR {ticket.price}</span>
                         </div>
                         <p className="text-xs text-gray-400 mt-1">
                           Purchased: {new Date(ticket.purchasedAt).toLocaleDateString()}

@@ -17,6 +17,7 @@ export function CreateEvent() {
     time: "",
     location: "",
     price: "",
+    maxTickets: "",
     description: "",
     image: null as string | null
   });
@@ -81,6 +82,7 @@ export function CreateEvent() {
         time: formData.time,
         location: formData.location,
         price: Number(formData.price) || 0,
+        maxTickets: Number(formData.maxTickets) || 100,
         description: formData.description,
         imageUrl: formData.image || null,
         organizerId: user?.id,
@@ -299,20 +301,34 @@ export function CreateEvent() {
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Price per Ticket ($)</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Price per Ticket (LKR)</label>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">LKR</span>
                     <input
                       required
                       type="number"
                       min="0"
                       placeholder="0.00"
-                      className="w-full pl-8 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full pl-12 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                       value={formData.price}
                       onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                     />
                   </div>
                   <p className="text-xs text-gray-500 mt-1">Enter 0 for free events.</p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Maximum Tickets Available</label>
+                  <input
+                    required
+                    type="number"
+                    min="1"
+                    placeholder="100"
+                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    value={formData.maxTickets}
+                    onChange={(e) => setFormData({ ...formData, maxTickets: e.target.value })}
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Total number of tickets that can be sold for this event.</p>
                 </div>
               </div>
             </div>

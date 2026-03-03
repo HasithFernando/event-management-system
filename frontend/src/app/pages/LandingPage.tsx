@@ -210,7 +210,7 @@ export function LandingPage() {
                      <div className="relative h-48 overflow-hidden">
                         <img src={event.imageUrl || "https://images.unsplash.com/photo-1515162305285-9dc6f8630e84?auto=format&fit=crop&w=800&q=80"} alt={event.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                         <div className="absolute top-4 right-4 bg-white/95 backdrop-blur px-3 py-1 rounded-full text-sm font-bold text-indigo-900 shadow-sm">
-                           ${event.price}
+                           LKR {event.price}
                         </div>
                      </div>
                      <div className="p-6">

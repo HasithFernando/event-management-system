@@ -73,6 +73,7 @@ public class EventController {
       event.getTime(),
       event.getLocation(),
       event.getPrice(),
+      event.getMaxTickets(),
       event.getStatus(),
       event.getDescription(),
       event.getImageUrl(),

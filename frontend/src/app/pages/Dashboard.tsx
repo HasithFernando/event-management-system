@@ -67,7 +67,7 @@ export function Dashboard() {
   const stats = overview
     ? [
         { label: "Total Revenue", value: overview.totalRevenue, icon: DollarSign, trend: "+12.5%", color: "text-green-500" },
-        { label: "Total Attendees", value: overview.totalAttendees, icon: Users, trend: "+8.2%", color: "text-blue-500" },
+        { label: "Tickets Sold", value: overview.totalAttendees, icon: Users, trend: "+8.2%", color: "text-blue-500" },
         { label: "Events Hosted", value: overview.eventsHosted, icon: Calendar, trend: "+24%", color: "text-purple-500" },
         { label: "Avg. Ticket Price", value: overview.avgTicketPrice, icon: TrendingUp, trend: "-2.1%", color: "text-orange-500" },
       ]
@@ -111,11 +111,11 @@ export function Dashboard() {
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: "#6b7280", fontSize: 12 }} dy={10} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fill: "#6b7280", fontSize: 12 }} tickFormatter={(value) => `$${value}`} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fill: "#6b7280", fontSize: 12 }} tickFormatter={(value) => `LKR ${value}`} />
                 <Tooltip
                   contentStyle={{ backgroundColor: "#fff", borderRadius: "8px", border: "none", boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)" }}
                   itemStyle={{ color: "#4f46e5" }}
-                  formatter={(value) => [`$${value}`, "Revenue"]}
+                  formatter={(value) => [`LKR ${value}`, "Revenue"]}
                 />
                 <Area type="monotone" dataKey="revenue" stroke="#4f46e5" strokeWidth={2} fillOpacity={1} fill="url(#colorRevenue)" />
               </AreaChart>
@@ -233,7 +233,7 @@ export function Dashboard() {
                                   <h4 className="font-medium text-gray-900 truncate">Ticket #{ticket.id.slice(0, 8)}</h4>
                                   <div className="flex items-center gap-1 mt-1 text-sm text-gray-500">
                                     <DollarSign className="w-3.5 h-3.5 flex-shrink-0" />
-                                    <span>${ticket.price}</span>
+                                    <span>LKR {ticket.price}</span>
                                   </div>
                                   <p className="text-xs text-gray-400 mt-1">
                                     Purchased: {new Date(ticket.purchasedAt).toLocaleDateString()}
