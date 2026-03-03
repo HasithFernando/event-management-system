@@ -1,5 +1,11 @@
 server:
   port: 8080
+  servlet:
+    session:
+      cookie:
+        secure: false
+        http-only: true
+        same-site: lax
 
 spring:
   application:
@@ -13,7 +19,7 @@ spring:
       globalcors:
         cors-configurations:
           '[/**]':
-            allowedOrigins: "http://localhost:3000"
+            allowedOrigins: "${CORS_ALLOWED_ORIGINS:http://localhost:3000}"
             allowedMethods:
               - GET
               - POST
@@ -23,7 +29,11 @@ spring:
             allowedHeaders:
               - Content-Type
               - Authorization
+              - X-Requested-With
+            exposedHeaders:
+              - Authorization
             allowCredentials: true
+            maxAge: 3600
 
       routes:
         - id: auth-service
@@ -32,6 +42,19 @@ spring:
             - Path=/api/auth/**
           filters:
             - RewritePath=/api/auth(?<segment>/?.*), /api/auth$\{segment}
+            - AddResponseHeader=X-Content-Type-Options,nosniff
+            - AddResponseHeader=X-Frame-Options,DENY
+            - AddResponseHeader=X-XSS-Protection,1;mode=block
+
+        - id: users-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/api/users/**
+          filters:
+            - RewritePath=/api/users(?<segment>/?.*), /api/users$\{segment}
+            - AddResponseHeader=X-Content-Type-Options,nosniff
+            - AddResponseHeader=X-Frame-Options,DENY
+            - AddResponseHeader=X-XSS-Protection,1;mode=block
 
         - id: event-service
           uri: lb://event-service
@@ -39,20 +62,19 @@ spring:
             - Path=/api/events/**
           filters:
             - RewritePath=/api/events(?<segment>/?.*), /api/events$\{segment}
-
-        - id: attendee-service
-          uri: lb://attendee-service
-          predicates:
-            - Path=/api/attendees/**
-          filters:
-            - RewritePath=/api/attendees(?<segment>/?.*), /api/attendees$\{segment}
+            - AddResponseHeader=X-Content-Type-Options,nosniff
+            - AddResponseHeader=X-Frame-Options,DENY
+            - AddResponseHeader=X-XSS-Protection,1;mode=block
 
         - id: ticket-service
           uri: lb://ticket-service
           predicates:
-            - Path=/api/tickets/**
+            - Path=/api/tickets,/api/tickets/**
           filters:
             - RewritePath=/api/tickets(?<segment>/?.*), /api/tickets$\{segment}
+            - AddResponseHeader=X-Content-Type-Options,nosniff
+            - AddResponseHeader=X-Frame-Options,DENY
+            - AddResponseHeader=X-XSS-Protection,1;mode=block
 
         - id: notification-service
           uri: lb://notification-service
@@ -60,6 +82,9 @@ spring:
             - Path=/api/notifications/**
           filters:
             - RewritePath=/api/notifications(?<segment>/?.*), /api/notifications$\{segment}
+            - AddResponseHeader=X-Content-Type-Options,nosniff
+            - AddResponseHeader=X-Frame-Options,DENY
+            - AddResponseHeader=X-XSS-Protection,1;mode=block
 
         - id: analytics-service
           uri: lb://analytics-service
@@ -67,6 +92,9 @@ spring:
             - Path=/api/analytics/**
           filters:
             - RewritePath=/api/analytics(?<segment>/?.*), /api/analytics$\{segment}
+            - AddResponseHeader=X-Content-Type-Options,nosniff
+            - AddResponseHeader=X-Frame-Options,DENY
+            - AddResponseHeader=X-XSS-Protection,1;mode=block
 
         - id: admin-service
           uri: lb://admin-service
@@ -74,6 +102,86 @@ spring:
             - Path=/api/admin/**
           filters:
             - RewritePath=/api/admin(?<segment>/?.*), /api/admin$\{segment}
+            - AddResponseHeader=X-Content-Type-Options,nosniff
+            - AddResponseHeader=X-Frame-Options,DENY
+            - AddResponseHeader=X-XSS-Protection,1;mode=block
+
+        - id: profile-service
+          uri: lb://profile-service
+          predicates:
+            - Path=/api/profiles/**
+          filters:
+            - RewritePath=/api/profiles(?<segment>/?.*), /api/profiles$\{segment}
+            - AddResponseHeader=X-Content-Type-Options,nosniff
+            - AddResponseHeader=X-Frame-Options,DENY
+            - AddResponseHeader=X-XSS-Protection,1;mode=block
+
+        - id: payment-service
+          uri: lb://payment-service
+          predicates:
+            - Path=/api/payment/**
+          filters:
+            - RewritePath=/api/payment(?<segment>/?.*), /api/payment$\{segment}
+            - AddResponseHeader=X-Content-Type-Options,nosniff
+            - AddResponseHeader=X-Frame-Options,DENY
+            - AddResponseHeader=X-XSS-Protection,1;mode=block
+
+        # OpenAPI documentation routes for each service
+        - id: auth-service-openapi
+          uri: lb://auth-service
+          predicates:
+            - Path=/v3/api-docs/auth-service
+          filters:
+            - RewritePath=/v3/api-docs/auth-service, /v3/api-docs
+
+        - id: event-service-openapi
+          uri: lb://event-service
+          predicates:
+            - Path=/v3/api-docs/event-service
+          filters:
+            - RewritePath=/v3/api-docs/event-service, /v3/api-docs
+
+        - id: profile-service-openapi
+          uri: lb://profile-service
+          predicates:
+            - Path=/v3/api-docs/profile-service
+          filters:
+            - RewritePath=/v3/api-docs/profile-service, /v3/api-docs
+
+        - id: ticket-service-openapi
+          uri: lb://ticket-service
+          predicates:
+            - Path=/v3/api-docs/ticket-service
+          filters:
+            - RewritePath=/v3/api-docs/ticket-service, /v3/api-docs
+
+        - id: notification-service-openapi
+          uri: lb://notification-service
+          predicates:
+            - Path=/v3/api-docs/notification-service
+          filters:
+            - RewritePath=/v3/api-docs/notification-service, /v3/api-docs
+
+        - id: admin-service-openapi
+          uri: lb://admin-service
+          predicates:
+            - Path=/v3/api-docs/admin-service
+          filters:
+            - RewritePath=/v3/api-docs/admin-service, /v3/api-docs
+
+        - id: analytics-service-openapi
+          uri: lb://analytics-service
+          predicates:
+            - Path=/v3/api-docs/analytics-service
+          filters:
+            - RewritePath=/v3/api-docs/analytics-service, /v3/api-docs
+
+        - id: payment-service-openapi
+          uri: lb://payment-service
+          predicates:
+            - Path=/v3/api-docs/payment-service
+          filters:
+            - RewritePath=/v3/api-docs/payment-service, /v3/api-docs
 
 eureka:
   client:
@@ -82,3 +190,39 @@ eureka:
   instance:
     preferIpAddress: true
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway
+
+# JWT Configuration (must match auth-service secret)
+jwt:
+  secret: ${JWT_SECRET:bXlTZWNyZXRLZXkxMjM0NTY3ODkwMTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDEyMzQ=}
+  expiration: ${JWT_EXPIRATION:86400000}
+
+# Springdoc OpenAPI Configuration for API Documentation
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    config-url: /v3/api-docs/swagger-config
+    urls:
+      - name: auth-service
+        url: /v3/api-docs/auth-service
+      - name: event-service
+        url: /v3/api-docs/event-service
+      - name: profile-service
+        url: /v3/api-docs/profile-service
+      - name: ticket-service
+        url: /v3/api-docs/ticket-service
+      - name: notification-service
+        url: /v3/api-docs/notification-service
+      - name: admin-service
+        url: /v3/api-docs/admin-service
+      - name: analytics-service
+        url: /v3/api-docs/analytics-service
+      - name: payment-service
+        url: /v3/api-docs/payment-service

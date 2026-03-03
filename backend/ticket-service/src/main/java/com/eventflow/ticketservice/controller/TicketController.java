@@ -4,8 +4,11 @@ import com.eventflow.ticketservice.dto.TicketPurchaseRequest;
 import com.eventflow.ticketservice.dto.TicketResponse;
 import com.eventflow.ticketservice.dto.TicketStatusUpdateRequest;
 import com.eventflow.ticketservice.model.Ticket;
+import com.eventflow.ticketservice.service.TicketPdfService;
 import com.eventflow.ticketservice.service.TicketService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,9 +27,11 @@ import java.util.UUID;
 @RequestMapping("/api/tickets")
 public class TicketController {
   private final TicketService ticketService;
+  private final TicketPdfService ticketPdfService;
 
-  public TicketController(TicketService ticketService) {
+  public TicketController(TicketService ticketService, TicketPdfService ticketPdfService) {
     this.ticketService = ticketService;
+    this.ticketPdfService = ticketPdfService;
   }
 
   @PostMapping
@@ -41,8 +46,8 @@ public class TicketController {
 
   @GetMapping
   public List<TicketResponse> list(@RequestParam(required = false) UUID eventId,
-                                   @RequestParam(required = false) UUID attendeeId) {
-    return ticketService.list(eventId, attendeeId).stream().map(this::toResponse).toList();
+                                   @RequestParam(required = false) UUID userId) {
+    return ticketService.list(eventId, userId).stream().map(this::toResponse).toList();
   }
 
   @GetMapping("/count")
@@ -56,6 +61,21 @@ public class TicketController {
     return ResponseEntity.ok(toResponse(ticketService.updateStatus(id, request)));
   }
 
+  /**
+   * Downloads a PDF ticket with an embedded QR code for the given booking.
+   * GET /api/tickets/{id}/download
+   */
+  @GetMapping("/{id}/download")
+  public ResponseEntity<byte[]> download(@PathVariable UUID id) {
+    byte[] pdfBytes = ticketPdfService.generateTicketPdf(id);
+    String filename = "ticket-" + id + ".pdf";
+    return ResponseEntity.ok()
+        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+        .contentType(MediaType.APPLICATION_PDF)
+        .contentLength(pdfBytes.length)
+        .body(pdfBytes);
+  }
+
   @ExceptionHandler(IllegalArgumentException.class)
   public ResponseEntity<String> handleBadRequest(IllegalArgumentException ex) {
     return ResponseEntity.badRequest().body(ex.getMessage());
@@ -65,7 +85,7 @@ public class TicketController {
     return new TicketResponse(
       ticket.getId(),
       ticket.getEventId(),
-      ticket.getAttendeeId(),
+      ticket.getUserId(),
       ticket.getPrice(),
       ticket.getStatus(),
       ticket.getPurchasedAt()

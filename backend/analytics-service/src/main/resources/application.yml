@@ -5,21 +5,32 @@ spring:
   application:
     name: analytics-service
   datasource:
-    url: jdbc:mysql://localhost:3306/analyticsdb?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-    driverClassName: com.mysql.cj.jdbc.Driver
-    username: root
+    url: jdbc:h2:mem:analyticsdb
+    driverClassName: org.h2.Driver
+    username: sa
     password:
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: false
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.MySQLDialect
+        dialect: org.hibernate.dialect.H2Dialect
 
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: http://eureka-server:8761/eureka/
   instance:
     preferIpAddress: true
+
+# Springdoc OpenAPI Configuration
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html

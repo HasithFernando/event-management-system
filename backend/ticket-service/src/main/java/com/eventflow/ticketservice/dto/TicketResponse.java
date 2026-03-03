@@ -7,15 +7,15 @@ import java.util.UUID;
 public class TicketResponse {
   private UUID id;
   private UUID eventId;
-  private UUID attendeeId;
+  private UUID userId;
   private BigDecimal price;
   private String status;
   private LocalDateTime purchasedAt;
 
-  public TicketResponse(UUID id, UUID eventId, UUID attendeeId, BigDecimal price, String status, LocalDateTime purchasedAt) {
+  public TicketResponse(UUID id, UUID eventId, UUID userId, BigDecimal price, String status, LocalDateTime purchasedAt) {
     this.id = id;
     this.eventId = eventId;
-    this.attendeeId = attendeeId;
+    this.userId = userId;
     this.price = price;
     this.status = status;
     this.purchasedAt = purchasedAt;
@@ -29,8 +29,8 @@ public class TicketResponse {
     return eventId;
   }
 
-  public UUID getAttendeeId() {
-    return attendeeId;
+  public UUID getUserId() {
+    return userId;
   }
 
   public BigDecimal getPrice() {

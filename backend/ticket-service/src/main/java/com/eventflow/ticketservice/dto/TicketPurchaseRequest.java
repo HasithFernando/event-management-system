@@ -10,7 +10,7 @@ public class TicketPurchaseRequest {
   private UUID eventId;
 
   @NotNull
-  private UUID attendeeId;
+  private UUID userId;
 
   @NotNull
   private BigDecimal price;
@@ -23,12 +23,12 @@ public class TicketPurchaseRequest {
     this.eventId = eventId;
   }
 
-  public UUID getAttendeeId() {
-    return attendeeId;
+  public UUID getUserId() {
+    return userId;
   }
 
-  public void setAttendeeId(UUID attendeeId) {
-    this.attendeeId = attendeeId;
+  public void setUserId(UUID userId) {
+    this.userId = userId;
   }
 
   public BigDecimal getPrice() {

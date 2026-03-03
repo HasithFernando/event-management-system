@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,18 +36,39 @@ public class AnalyticsService {
 
   private static final String EVENT_SERVICE_URL = "http://event-service/api/events";
   private static final String TICKET_SERVICE_URL = "http://ticket-service/api/tickets";
-  private static final String ATTENDEE_SERVICE_URL = "http://attendee-service/api/attendees";
 
   public AnalyticsService(RestTemplate restTemplate, AnalyticsSnapshotRepository snapshotRepository) {
     this.restTemplate = restTemplate;
     this.snapshotRepository = snapshotRepository;
   }
 
-  public OverviewResponse getOverview() {
+  public OverviewResponse getOverview(UUID organizerId) {
     List<EventDTO> events = fetchEvents();
+    
+    // Filter by organizerId if provided
+    if (organizerId != null) {
+      String organizerIdStr = organizerId.toString();
+      events = events.stream()
+          .filter(e -> organizerIdStr.equals(e.getOrganizerId()))
+          .toList();
+    }
+    
+    // Get event IDs to filter tickets
+    List<String> eventIds = events.stream()
+        .map(EventDTO::getId)
+        .filter(Objects::nonNull)
+        .toList();
+    
     List<TicketDTO> tickets = fetchTickets();
-    int totalMembers = fetchAttendeeCount();
-
+    
+    // Filter tickets to only those for the filtered events
+    if (organizerId != null && !eventIds.isEmpty()) {
+      tickets = tickets.stream()
+          .filter(t -> eventIds.contains(t.getEventId()))
+          .toList();
+    }
+    
+    int totalMembers = countUniqueUsers(tickets);
     int totalEvents = events.size();
     int totalTicketsSold = tickets.size();
 
@@ -67,8 +89,31 @@ public class AnalyticsService {
     );
   }
 
-  public List<RevenuePoint> getMonthlyRevenue() {
+  public List<RevenuePoint> getMonthlyRevenue(UUID organizerId) {
+    List<EventDTO> events = fetchEvents();
+    
+    // Filter by organizerId if provided
+    if (organizerId != null) {
+      String organizerIdStr = organizerId.toString();
+      events = events.stream()
+          .filter(e -> organizerIdStr.equals(e.getOrganizerId()))
+          .toList();
+    }
+    
+    // Get event IDs to filter tickets
+    List<String> eventIds = events.stream()
+        .map(EventDTO::getId)
+        .filter(Objects::nonNull)
+        .toList();
+    
     List<TicketDTO> tickets = fetchTickets();
+    
+    // Filter tickets to only those for the filtered events
+    if (organizerId != null && !eventIds.isEmpty()) {
+      tickets = tickets.stream()
+          .filter(t -> eventIds.contains(t.getEventId()))
+          .toList();
+    }
 
     Map<Month, BigDecimal> revenueByMonth = new LinkedHashMap<>();
     for (Month month : Month.values()) {
@@ -101,8 +146,16 @@ public class AnalyticsService {
     return result;
   }
 
-  public List<CategoryCount> getEventsByCategory() {
+  public List<CategoryCount> getEventsByCategory(UUID organizerId) {
     List<EventDTO> events = fetchEvents();
+    
+    // Filter by organizerId if provided
+    if (organizerId != null) {
+      String organizerIdStr = organizerId.toString();
+      events = events.stream()
+          .filter(e -> organizerIdStr.equals(e.getOrganizerId()))
+          .toList();
+    }
 
     Map<String, Long> categoryMap = events.stream()
         .filter(e -> e.getCategory() != null)
@@ -117,7 +170,7 @@ public class AnalyticsService {
   public AnalyticsSnapshot saveSnapshot() {
     List<EventDTO> events = fetchEvents();
     List<TicketDTO> tickets = fetchTickets();
-    int totalMembers = fetchAttendeeCount();
+    int totalMembers = countUniqueUsers(tickets);
 
     BigDecimal totalRevenue = tickets.stream()
         .map(TicketDTO::getPrice)
@@ -173,18 +226,12 @@ public class AnalyticsService {
     }
   }
 
-  private int fetchAttendeeCount() {
-    try {
-      ResponseEntity<List<Object>> response = restTemplate.exchange(
-          ATTENDEE_SERVICE_URL,
-          HttpMethod.GET,
-          null,
-          new ParameterizedTypeReference<List<Object>>() {}
-      );
-      return response.getBody() != null ? response.getBody().size() : 0;
-    } catch (Exception e) {
-      return 0;
-    }
+  private int countUniqueUsers(List<TicketDTO> tickets) {
+    return (int) tickets.stream()
+        .map(TicketDTO::getUserId)
+        .filter(Objects::nonNull)
+        .distinct()
+        .count();
   }
 
   private String formatDecimal(BigDecimal value) {

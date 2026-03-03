@@ -1,23 +1,50 @@
 version: '3.8'
 
 services:
+  config-server:
+    build: ./backend/config-server
+    container_name: config-server
+    ports:
+      - "8888:8888"
+    environment:
+      - SPRING_PROFILES_ACTIVE=native
+      - SPRING_CLOUD_CONFIG_SERVER_NATIVE_SEARCH_LOCATIONS=file:///config-repo
+      - EUREKA_CLIENT_ENABLED=false
+    volumes:
+      - ./config-repo:/config-repo:ro
+    networks:
+      - event-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8888/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
   discovery:
     build: ./backend/eureka-server
+    container_name: eureka-server
     ports:
       - "8761:8761"
+    depends_on:
+      - config-server
     environment:
-      - EUREKA_INSTANCE_HOSTNAME=localhost
+      - EUREKA_INSTANCE_HOSTNAME=discovery
+      - SPRING_CLOUD_CONFIG_URI=http://config-server:8888
     networks:
       - event-network
 
   gateway:
     build: ./backend/api-gateway
+    container_name: api-gateway
     ports:
       - "8080:8080"
     depends_on:
+      - config-server
       - discovery
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery:8761/eureka/
+      - SPRING_CLOUD_CONFIG_URI=http://config-server:8888
     networks:
       - event-network
 
@@ -36,17 +63,6 @@ services:
     build: ./backend/event-service
     ports:
       - "8081:8081"
-    depends_on:
-      - discovery
-    environment:
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery:8761/eureka/
-    networks:
-      - event-network
-
-  attendee-service:
-    build: ./backend/attendee-service
-    ports:
-      - "8083:8083"
     depends_on:
       - discovery
     environment:
@@ -87,6 +103,17 @@ services:
     networks:
       - event-network
 
+  payment-service:
+    build: ./backend/payment-service
+    ports:
+      - "8083:8083"
+    depends_on:
+      - discovery
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery:8761/eureka/
+    networks:
+      - event-network
+
   admin-service:
     build: ./backend/admin-service
     ports:
@@ -95,10 +122,22 @@ services:
       - discovery
       - event-service
       - auth-service
-      - attendee-service
       - ticket-service
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery:8761/eureka/
+    networks:
+      - event-network
+
+  profile-service:
+    build: ./backend/profile-service
+    ports:
+      - "8088:8088"
+    depends_on:
+      - discovery
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery:8761/eureka/
+    volumes:
+      - profile-data:/data
     networks:
       - event-network
 
@@ -114,3 +153,6 @@ services:
 networks:
   event-network:
     driver: bridge
+
+volumes:
+  profile-data:

@@ -23,7 +23,7 @@ public class Ticket {
   private UUID eventId;
 
   @Column(nullable = false)
-  private UUID attendeeId;
+  private UUID userId;
 
   @Column(nullable = false)
   private BigDecimal price;
@@ -50,12 +50,12 @@ public class Ticket {
     this.eventId = eventId;
   }
 
-  public UUID getAttendeeId() {
-    return attendeeId;
+  public UUID getUserId() {
+    return userId;
   }
 
-  public void setAttendeeId(UUID attendeeId) {
-    this.attendeeId = attendeeId;
+  public void setUserId(UUID userId) {
+    this.userId = userId;
   }
 
   public BigDecimal getPrice() {
