@@ -6,6 +6,8 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { LandingPage } from './pages/LandingPage';
 import { AuthPage } from './pages/AuthPage';
 import { HealthCheck } from './components/HealthCheck';
+import { Checkout } from './components/Checkout';
+import { PaymentSuccess } from './components/PaymentSuccess';
 
 // Organizer/Admin Layout & Pages
 import { OrganizerLayout } from './layouts/OrganizerLayout';
@@ -37,6 +39,7 @@ export default function App() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/health" element={<HealthCheck />} />
+            <Route path="/payment/success" element={<PaymentSuccess />} />
 
             {/* Attendee Routes */}
             <Route
@@ -50,6 +53,7 @@ export default function App() {
               <Route index element={<AttendeeDashboard />} />
               <Route path="discover" element={<DiscoverEvents />} />
               <Route path="tickets" element={<MyTickets />} />
+              <Route path="checkout/:eventId" element={<Checkout />} />
               <Route path="profile" element={<ProfilePage />} />
               <Route path="settings" element={<Settings />} />
               <Route path="notifications" element={<NotificationList />} />

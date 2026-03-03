@@ -377,3 +377,17 @@ export const broadcastApi = {
   sendBroadcast: (message: string) =>
     apiRequest<void>("/api/admin/broadcast", { method: "POST", body: { message } }),
 };
+
+// Payment API (PayHere Integration)
+export const paymentApi = {
+  initiate: (payload: { orderId: string; amount: number; currency: string }) =>
+    apiRequest<{
+      merchant_id: string;
+      order_id: string;
+      amount: string;
+      currency: string;
+      hash: string;
+      action_url: string;
+    }>("/api/tickets/payment/initiate", { method: "POST", body: payload }),
+};
+

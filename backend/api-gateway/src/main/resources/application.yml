@@ -69,7 +69,7 @@ spring:
         - id: ticket-service
           uri: lb://ticket-service
           predicates:
-            - Path=/api/tickets/**
+            - Path=/api/tickets,/api/tickets/**
           filters:
             - RewritePath=/api/tickets(?<segment>/?.*), /api/tickets$\{segment}
             - AddResponseHeader=X-Content-Type-Options,nosniff

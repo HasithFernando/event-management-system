@@ -51,8 +51,8 @@ export function EventList() {
   const [filterCategory, setFilterCategory] = useState("All");
 
   const filteredEvents = events.filter(event => {
-    const matchesSearch = event.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          event.location.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      event.location.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = filterCategory === "All" || event.category === filterCategory;
     return matchesSearch && matchesCategory;
   });
@@ -67,22 +67,22 @@ export function EventList() {
           <p className="text-gray-500 mt-1">Manage and organize your upcoming events.</p>
         </div>
         <div className="flex gap-3">
-            <button 
-              onClick={() => navigate('/dashboard/events/create')}
-              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition-colors shadow-sm flex items-center"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Create Event
-            </button>
+          <button 
+            onClick={() => navigate('/dashboard/events/create')}
+            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition-colors shadow-sm flex items-center"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Create Event
+          </button>
         </div>
       </div>
 
       <div className="flex flex-col md:flex-row gap-4 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <input 
-            type="text" 
-            placeholder="Search events..." 
+          <input
+            type="text"
+            placeholder="Search events..."
             className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -93,11 +93,10 @@ export function EventList() {
             <button
               key={cat}
               onClick={() => setFilterCategory(cat)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
-                filterCategory === cat 
-                  ? "bg-indigo-50 text-indigo-700 border border-indigo-100" 
-                  : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50"
-              }`}
+              className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${filterCategory === cat
+                ? "bg-indigo-50 text-indigo-700 border border-indigo-100"
+                : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50"
+                }`}
             >
               {cat}
             </button>
@@ -172,7 +171,7 @@ export function EventList() {
           ))
         )}
       </div>
-      
+
       {filteredEvents.length === 0 && (
         <div className="text-center py-12 bg-white rounded-xl border border-gray-100 border-dashed">
           <div className="mx-auto w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-4">
