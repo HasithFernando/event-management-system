@@ -17,6 +17,7 @@ export interface EventItem {
   time: string;
   location: string;
   price: number;
+  maxTickets: number;
   status: string;
   description: string;
   imageUrl?: string | null;
@@ -74,6 +75,7 @@ export const eventApi = {
     time: string;
     location: string;
     price: number;
+    maxTickets: number;
     description: string;
     imageUrl?: string | null;
     organizerId?: string;
@@ -85,6 +87,7 @@ export const eventApi = {
     time: string;
     location: string;
     price: number;
+    maxTickets: number;
     description: string;
     status: string;
     imageUrl?: string | null;
@@ -122,8 +125,8 @@ export const ticketApi = {
     return apiRequest<TicketItem[]>(queryString ? `/api/tickets?${queryString}` : "/api/tickets");
   },
 
-  purchase: (payload: { eventId: string; userId: string; price: number }) =>
-    apiRequest<TicketItem>("/api/tickets", {
+  purchase: (payload: { eventId: string; userId: string; price: number; quantity: number }) =>
+    apiRequest<TicketItem[]>("/api/tickets", {
       method: "POST",
       body: payload
     }),
@@ -168,10 +171,10 @@ export const analyticsApi = {
       console.error("Failed to fetch analytics overview:", error);
       // Return default data if backend not available
       return {
-        totalRevenue: "$0.00",
+        totalRevenue: "LKR 0.00",
         totalAttendees: "0",
         eventsHosted: "0",
-        avgTicketPrice: "$0.00",
+        avgTicketPrice: "LKR 0.00",
       };
     }
   },

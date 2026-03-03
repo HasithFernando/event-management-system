@@ -1,12 +1,14 @@
 import { eventApi, ticketApi, type EventItem } from "../services/eventflow";
 import { Search, Calendar, MapPin, Heart } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import clsx from "clsx";
 import { toast } from "sonner";
 import { useAuth } from "../contexts/AuthContext";
 
 export function DiscoverEvents() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [likedEvents, setLikedEvents] = useState<string[]>([]);
   const [events, setEvents] = useState<EventItem[]>([]);
@@ -52,7 +54,7 @@ export function DiscoverEvents() {
     }
   };
 
-  const handleBuyTicket = async (event: EventItem) => {
+  const handleBuyTicket = (event: EventItem) => {
     if (!user) {
       toast.error("Please log in to purchase tickets");
       return;
@@ -63,18 +65,8 @@ export function DiscoverEvents() {
       return;
     }
 
-    try {
-      const purchasePromise = ticketApi.purchase({ eventId: event.id, userId: user.id, price: event.price });
-      toast.promise(purchasePromise, {
-        loading: 'Processing payment...',
-        success: `Successfully registered for ${event.title}!`,
-        error: 'Failed to book ticket'
-      });
-      await purchasePromise;
-      setMyTicketEventIds(prev => new Set([...prev, event.id]));
-    } catch (error) {
-      console.error(error);
-    }
+    // Navigate to checkout page
+    navigate(`/attendee/checkout/${event.id}`);
   };
 
   if (loading) {
@@ -141,7 +133,7 @@ export function DiscoverEvents() {
                     <Heart className={clsx("w-4 h-4", likedEvents.includes(event.id) ? "fill-red-500 text-red-500" : "text-gray-400")} />
                   </button>
                   <div className="absolute top-3 left-3 px-2 py-1 rounded text-xs font-semibold text-gray-900 bg-white/90 shadow-sm">
-                    ${event.price}
+                    LKR {event.price}
                   </div>
                 </div>
                 

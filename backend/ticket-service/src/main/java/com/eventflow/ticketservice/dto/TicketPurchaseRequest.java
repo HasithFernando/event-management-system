@@ -1,6 +1,8 @@
 package com.eventflow.ticketservice.dto;
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Max;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -14,6 +16,11 @@ public class TicketPurchaseRequest {
 
   @NotNull
   private BigDecimal price;
+
+  @NotNull
+  @Min(value = 1, message = "Quantity must be at least 1")
+  @Max(value = 3, message = "Maximum 3 tickets can be purchased at once")
+  private Integer quantity;
 
   public UUID getEventId() {
     return eventId;
@@ -37,6 +44,14 @@ public class TicketPurchaseRequest {
 
   public void setPrice(BigDecimal price) {
     this.price = price;
+  }
+
+  public Integer getQuantity() {
+    return quantity;
+  }
+
+  public void setQuantity(Integer quantity) {
+    this.quantity = quantity;
   }
 }
 
