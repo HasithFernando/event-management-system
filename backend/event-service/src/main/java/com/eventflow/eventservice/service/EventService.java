@@ -47,6 +47,7 @@ public class EventService {
     event.setTime(request.getTime());
     event.setLocation(request.getLocation());
     event.setPrice(request.getPrice());
+    event.setMaxTickets(request.getMaxTickets());
     event.setDescription(request.getDescription());
     event.setImageUrl(request.getImageUrl());
     event.setStatus("Upcoming");
@@ -101,6 +102,7 @@ public class EventService {
     event.setTime(request.getTime());
     event.setLocation(request.getLocation());
     event.setPrice(request.getPrice());
+    event.setMaxTickets(request.getMaxTickets());
     event.setStatus(request.getStatus());
     event.setDescription(request.getDescription());
     event.setImageUrl(request.getImageUrl());

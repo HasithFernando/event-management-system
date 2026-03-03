@@ -121,7 +121,7 @@ export function EventList() {
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
                 />
                 <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded text-xs font-semibold text-gray-900 shadow-sm">
-                  ${event.price}
+                  LKR {event.price}
                 </div>
                 <div className={`absolute top-3 left-3 px-2 py-1 rounded text-xs font-semibold text-white shadow-sm ${
                   event.status === 'Upcoming' ? 'bg-green-500/90' : 'bg-gray-500/90'
@@ -151,7 +151,16 @@ export function EventList() {
                   </div>
                   <div className="flex items-center gap-2">
                     <Users className="w-4 h-4 text-gray-400" />
-                    <span>{event.attendeeCount?.toLocaleString() || 0} attendees</span>
+                    <span>
+                      {event.attendeeCount?.toLocaleString() || 0} sold • {' '}
+                      <span className={`font-medium ${
+                        (event.maxTickets - (event.attendeeCount || 0)) < 10 
+                          ? 'text-red-600' 
+                          : 'text-green-600'
+                      }`}>
+                        {event.maxTickets - (event.attendeeCount || 0)} remaining
+                      </span>
+                    </span>
                   </div>
                 </div>
 

@@ -13,13 +13,14 @@ public class EventResponse {
   private LocalTime time;
   private String location;
   private BigDecimal price;
+  private Integer maxTickets;
   private String status;
   private String description;
   private String imageUrl;
   private UUID organizerId;
 
   public EventResponse(UUID id, String title, String category, LocalDate date, LocalTime time,
-                       String location, BigDecimal price, String status, String description, String imageUrl, UUID organizerId) {
+                       String location, BigDecimal price, Integer maxTickets, String status, String description, String imageUrl, UUID organizerId) {
     this.id = id;
     this.title = title;
     this.category = category;
@@ -27,6 +28,7 @@ public class EventResponse {
     this.time = time;
     this.location = location;
     this.price = price;
+    this.maxTickets = maxTickets;
     this.status = status;
     this.description = description;
     this.imageUrl = imageUrl;
@@ -59,6 +61,10 @@ public class EventResponse {
 
   public BigDecimal getPrice() {
     return price;
+  }
+
+  public Integer getMaxTickets() {
+    return maxTickets;
   }
 
   public String getStatus() {

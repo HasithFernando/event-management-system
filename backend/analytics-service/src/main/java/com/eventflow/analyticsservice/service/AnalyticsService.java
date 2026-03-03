@@ -68,7 +68,6 @@ public class AnalyticsService {
           .toList();
     }
     
-    int totalMembers = countUniqueUsers(tickets);
     int totalEvents = events.size();
     int totalTicketsSold = tickets.size();
 
@@ -82,10 +81,10 @@ public class AnalyticsService {
         : BigDecimal.ZERO;
 
     return new OverviewResponse(
-        "$" + formatDecimal(totalRevenue),
-        String.valueOf(totalMembers),
+        "LKR " + formatDecimal(totalRevenue),
+        String.valueOf(totalTicketsSold),
         String.valueOf(totalEvents),
-        "$" + avgPrice.setScale(2, RoundingMode.HALF_UP)
+        "LKR " + avgPrice.setScale(2, RoundingMode.HALF_UP)
     );
   }
 
@@ -170,7 +169,7 @@ public class AnalyticsService {
   public AnalyticsSnapshot saveSnapshot() {
     List<EventDTO> events = fetchEvents();
     List<TicketDTO> tickets = fetchTickets();
-    int totalMembers = countUniqueUsers(tickets);
+    int totalTicketsSold = tickets.size();
 
     BigDecimal totalRevenue = tickets.stream()
         .map(TicketDTO::getPrice)
@@ -183,7 +182,7 @@ public class AnalyticsService {
 
     AnalyticsSnapshot snapshot = new AnalyticsSnapshot();
     snapshot.setTotalEvents(events.size());
-    snapshot.setTotalAttendees(totalMembers);
+    snapshot.setTotalAttendees(totalTicketsSold);
     snapshot.setTotalRevenue(totalRevenue);
     snapshot.setTotalTicketsSold(tickets.size());
     snapshot.setAvgTicketPrice(avgPrice);

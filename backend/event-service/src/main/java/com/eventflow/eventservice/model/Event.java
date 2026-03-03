@@ -40,6 +40,9 @@ public class Event {
   private BigDecimal price;
 
   @Column(nullable = false)
+  private Integer maxTickets;
+
+  @Column(nullable = false)
   private String status;
 
   @Column(columnDefinition = "TEXT", nullable = false)
@@ -111,6 +114,14 @@ public class Event {
 
   public void setPrice(BigDecimal price) {
     this.price = price;
+  }
+
+  public Integer getMaxTickets() {
+    return maxTickets;
+  }
+
+  public void setMaxTickets(Integer maxTickets) {
+    this.maxTickets = maxTickets;
   }
 
   public String getStatus() {

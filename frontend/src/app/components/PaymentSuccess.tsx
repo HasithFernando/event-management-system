@@ -19,7 +19,7 @@ export function PaymentSuccess() {
             }
 
             try {
-                const { eventId, price, title } = JSON.parse(pendingPurchase);
+                const { eventId, price, title, quantity = 1 } = JSON.parse(pendingPurchase);
                 const userStr = localStorage.getItem('user');
 
                 if (!userStr) {
@@ -34,7 +34,8 @@ export function PaymentSuccess() {
                 await ticketApi.purchase({
                     eventId,
                     userId: user.id,
-                    price
+                    price,
+                    quantity
                 });
 
                 setStatus('success');

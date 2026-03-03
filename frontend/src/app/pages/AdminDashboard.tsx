@@ -277,7 +277,7 @@ export function AdminDashboard() {
                       {event.date} {event.time}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{event.location}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${event.price}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">LKR {event.price}</td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={clsx(
                         "px-2 py-1 text-xs font-medium rounded-full",
