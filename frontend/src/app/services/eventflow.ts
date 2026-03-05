@@ -428,6 +428,63 @@ export interface RatingStats {
 
 // ---- Review API ----
 
+// ---- Feedback Types ----
+
+export type FeedbackCategory =
+  | "BUG_REPORT"
+  | "FEATURE_REQUEST"
+  | "EVENT_EXPERIENCE"
+  | "GENERAL"
+  | "SUPPORT";
+
+export type FeedbackStatus = "OPEN" | "IN_PROGRESS" | "RESOLVED" | "CLOSED";
+
+export interface FeedbackItem {
+  id: string;
+  userId: string;
+  userName: string;
+  userEmail: string;
+  category: FeedbackCategory;
+  subject: string;
+  message: string;
+  satisfactionScore?: number | null;
+  status: FeedbackStatus;
+  adminNotes?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ---- Feedback API ----
+
+export const feedbackApi = {
+  submit: (payload: {
+    userId: string;
+    userName: string;
+    userEmail: string;
+    category: FeedbackCategory;
+    subject: string;
+    message: string;
+    satisfactionScore?: number | null;
+  }) => apiRequest<FeedbackItem>("/api/feedback", { method: "POST", body: payload }),
+
+  getAll: (params?: { status?: FeedbackStatus; category?: FeedbackCategory }) => {
+    const q = new URLSearchParams();
+    if (params?.status) q.append("status", params.status);
+    if (params?.category) q.append("category", params.category);
+    const qs = q.toString();
+    return apiRequest<FeedbackItem[]>(qs ? `/api/feedback?${qs}` : "/api/feedback");
+  },
+
+  getByUser: (userId: string) =>
+    apiRequest<FeedbackItem[]>(`/api/feedback/user/${userId}`),
+
+  updateStatus: (id: string, payload: { status: FeedbackStatus; adminNotes?: string }) =>
+    apiRequest<FeedbackItem>(`/api/feedback/${id}/status`, { method: "PUT", body: payload }),
+
+  delete: (id: string) =>
+    apiRequest<void>(`/api/feedback/${id}`, { method: "DELETE" }),
+};
+
 export const reviewApi = {
   create: (payload: {
     eventId: string;
