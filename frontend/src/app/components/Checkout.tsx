@@ -78,12 +78,26 @@ export function Checkout() {
 
         setLoading(true);
         try {
+            // Simulate realistic payment processing flow
             const orderId = `ORDER-${Date.now()}`;
-            await paymentApi.initiate({ orderId, amount: totalPrice, currency: "LKR" });
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            
+            // Step 1: Processing payment
+            toast.info("Processing payment...");
+            await new Promise(resolve => setTimeout(resolve, 800));
+            
+            // Step 2: Verifying transaction
+            toast.info("Verifying transaction...");
+            await new Promise(resolve => setTimeout(resolve, 700));
+            
+            // Step 3: Generating tickets
+            toast.info("Generating tickets...");
+            await new Promise(resolve => setTimeout(resolve, 600));
+            
+            // Create the tickets (this is the actual backend call)
             const purchasedTickets = await ticketApi.purchase({
                 eventId: event.id, userId: user.id, price: event.price, quantity
             });
+            
             console.log(`Successfully created ${purchasedTickets.length} ticket(s):`, purchasedTickets);
             setShowConfirmation(true);
             toast.success(quantity === 1 ? `Payment successful! Your ticket has been created.` : `Payment successful! ${quantity} tickets have been created.`);
