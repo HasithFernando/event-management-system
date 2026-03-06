@@ -27,4 +27,18 @@ public class TicketService {
     this.eventServiceClient = eventServiceClient;
   }
 
-  
+  public List<Ticket> purchase(TicketPurchaseRequest request) {
+    // Get event details to check capacity
+    Map<String, Object> event = eventServiceClient.getEvent(request.getEventId());
+    if (event == null) {
+      throw new IllegalArgumentException("Event not found");
+    }
+
+    Integer maxTickets = event.get("maxTickets") != null ? 
+        Integer.valueOf(event.get("maxTickets").toString()) : null;
+    
+    if (maxTickets == null) {
+      throw new IllegalArgumentException("Event does not have ticket capacity configured");
+    }
+
+    
