@@ -128,5 +128,9 @@ public class TicketService {
   public long count() {
     return ticketRepository.count();
   }
+
+  public boolean hasTicket(UUID eventId, UUID userId) {
+    return !ticketRepository.findByEventIdAndUserId(eventId, userId).isEmpty();
+  }
 }
 

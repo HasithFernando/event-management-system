@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { reviewApi, type ReviewItem } from "../services/eventflow";
+import { useState, useEffect } from "react";
+import { reviewApi, type ReviewItem, profileApi, userApi } from "../services/eventflow";
 import { StarRating } from "./StarRating";
 import { toast } from "sonner";
 import { ThumbsUp, Pencil, Trash2, MessageSquare } from "lucide-react";
@@ -12,9 +12,32 @@ interface ReviewListProps {
   onReviewDeleted: (id: string) => void;
 }
 
+interface UserDisplayInfo {
+  name: string;
+  avatarUrl?: string;
+}
+
 export function ReviewList({ reviews, currentUserId, onReviewUpdated, onReviewDeleted }: ReviewListProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [userInfoMap, setUserInfoMap] = useState<Record<string, UserDisplayInfo>>({});
+
+  useEffect(() => {
+    const uniqueUserIds = [...new Set(reviews.map((r) => r.userId))];
+
+    uniqueUserIds.forEach(async (userId) => {
+      if (userInfoMap[userId]) return;
+      const [userRes, profileRes] = await Promise.allSettled([
+        userApi.getUser(userId),
+        profileApi.getProfile(userId),
+      ]);
+      const name =
+        userRes.status === "fulfilled" ? userRes.value.name : `User ···${userId.slice(-6)}`;
+      const avatarUrl =
+        profileRes.status === "fulfilled" ? profileRes.value.avatarUrl : undefined;
+      setUserInfoMap((prev) => ({ ...prev, [userId]: { name, avatarUrl } }));
+    });
+  }, [reviews]);
 
   const handleDelete = async (review: ReviewItem) => {
     if (!currentUserId) return;
@@ -76,11 +99,21 @@ export function ReviewList({ reviews, currentUserId, onReviewUpdated, onReviewDe
             {/* Header row */}
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-sm flex-shrink-0">
-                  {review.userId.slice(0, 2).toUpperCase()}
-                </div>
+                {userInfoMap[review.userId]?.avatarUrl ? (
+                  <img
+                    src={userInfoMap[review.userId].avatarUrl}
+                    alt={userInfoMap[review.userId].name}
+                    className="w-9 h-9 rounded-full object-cover flex-shrink-0"
+                  />
+                ) : (
+                  <div className="w-9 h-9 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-sm flex-shrink-0">
+                    {(userInfoMap[review.userId]?.name ?? review.userId).slice(0, 2).toUpperCase()}
+                  </div>
+                )}
                 <div>
-                  <p className="text-sm font-semibold text-gray-900">User ···{review.userId.slice(-6)}</p>
+                  <p className="text-sm font-semibold text-gray-900">
+                    {userInfoMap[review.userId]?.name ?? `User ···${review.userId.slice(-6)}`}
+                  </p>
                   <p className="text-xs text-gray-400">{new Date(review.createdAt).toLocaleDateString()}</p>
                 </div>
               </div>
