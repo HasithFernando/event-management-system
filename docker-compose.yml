@@ -34,6 +34,27 @@ services:
     networks:
       - event-network
 
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres-db
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=eventdb
+    ports:
+      - "5432:5432"
+    networks:
+      - event-network
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
   gateway:
     build: ./backend/api-gateway
     container_name: api-gateway
@@ -54,8 +75,12 @@ services:
       - "8082:8082"
     depends_on:
       - discovery
+      - postgres
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery:8761/eureka/
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/eventdb?currentSchema=auth_schema
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
     networks:
       - event-network
 
@@ -65,8 +90,12 @@ services:
       - "8081:8081"
     depends_on:
       - discovery
+      - postgres
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery:8761/eureka/
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/eventdb?currentSchema=event_schema
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
     networks:
       - event-network
 
@@ -76,8 +105,12 @@ services:
       - "8084:8084"
     depends_on:
       - discovery
+      - postgres
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery:8761/eureka/
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/eventdb?currentSchema=ticket_schema
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
     networks:
       - event-network
 
@@ -87,8 +120,12 @@ services:
       - "8085:8085"
     depends_on:
       - discovery
+      - postgres
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery:8761/eureka/
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/eventdb?currentSchema=notification_schema
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
     networks:
       - event-network
 
@@ -98,8 +135,12 @@ services:
       - "8086:8086"
     depends_on:
       - discovery
+      - postgres
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery:8761/eureka/
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/eventdb?currentSchema=analytics_schema
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
     networks:
       - event-network
 
@@ -134,8 +175,12 @@ services:
       - "8088:8088"
     depends_on:
       - discovery
+      - postgres
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery:8761/eureka/
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/eventdb?currentSchema=profile_schema
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
     volumes:
       - profile-data:/data
     networks:
@@ -147,8 +192,12 @@ services:
       - "8089:8089"
     depends_on:
       - discovery
+      - postgres
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery:8761/eureka/
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/eventdb?currentSchema=review_schema
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
     volumes:
       - review-data:/data
     networks:
@@ -170,3 +219,4 @@ networks:
 volumes:
   profile-data:
   review-data:
+  postgres-data:
