@@ -86,4 +86,51 @@ public class TicketService {
         "/attendee/tickets"
       );
 
-      
+      // Notify organizer
+      Object organizerIdObj = event.get("organizerId");
+      if (organizerIdObj != null) {
+        UUID organizerId = UUID.fromString(organizerIdObj.toString());
+        notificationClient.sendInAppNotification(
+          organizerId,
+          "TICKET_SOLD",
+          request.getQuantity() + " " + ticketText + " purchased for " + eventTitle,
+          "/dashboard/events/" + request.getEventId()
+        );
+      }
+    } catch (Exception e) {
+      System.err.println("Failed to send ticket purchase notifications: " + e.getMessage());
+    }
+
+    return createdTickets;
+  }
+
+  public Ticket get(UUID id) {
+    return ticketRepository.findById(id)
+      .orElseThrow(() -> new IllegalArgumentException("Ticket not found"));
+  }
+
+  public List<Ticket> list(UUID eventId, UUID userId) {
+    if (eventId != null) {
+      return ticketRepository.findByEventId(eventId);
+    }
+    if (userId != null) {
+      return ticketRepository.findByUserId(userId);
+    }
+    return ticketRepository.findAll();
+  }
+
+  public Ticket updateStatus(UUID id, TicketStatusUpdateRequest request) {
+    Ticket ticket = get(id);
+    ticket.setStatus(request.getStatus());
+    return ticketRepository.save(ticket);
+  }
+
+  public long count() {
+    return ticketRepository.count();
+  }
+
+  public boolean hasTicket(UUID eventId, UUID userId) {
+    return !ticketRepository.findByEventIdAndUserId(eventId, userId).isEmpty();
+  }
+}
+
