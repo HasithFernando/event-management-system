@@ -1,11 +1,13 @@
 package com.eventflow.reviewservice.service;
 
+import com.eventflow.reviewservice.client.TicketServiceClient;
 import com.eventflow.reviewservice.dto.RatingStatsResponse;
 import com.eventflow.reviewservice.dto.ReviewCreateRequest;
 import com.eventflow.reviewservice.dto.ReviewResponse;
 import com.eventflow.reviewservice.dto.ReviewUpdateRequest;
 import com.eventflow.reviewservice.exception.DuplicateReviewException;
 import com.eventflow.reviewservice.exception.ReviewNotFoundException;
+import com.eventflow.reviewservice.exception.ReviewNotAllowedException;
 import com.eventflow.reviewservice.model.Review;
 import com.eventflow.reviewservice.model.ReviewStatus;
 import com.eventflow.reviewservice.repository.ReviewRepository;
@@ -23,13 +25,20 @@ import java.util.stream.Collectors;
 public class ReviewService {
 
   private final ReviewRepository reviewRepository;
+  private final TicketServiceClient ticketServiceClient;
 
-  public ReviewService(ReviewRepository reviewRepository) {
+  public ReviewService(ReviewRepository reviewRepository, TicketServiceClient ticketServiceClient) {
     this.reviewRepository = reviewRepository;
+    this.ticketServiceClient = ticketServiceClient;
   }
 
   @Transactional
   public ReviewResponse createReview(ReviewCreateRequest request) {
+    if (!ticketServiceClient.hasTicket(request.eventId(), request.userId())) {
+      throw new ReviewNotAllowedException(
+          "You must have purchased a ticket to review this event");
+    }
+
     if (reviewRepository.existsByEventIdAndUserId(request.eventId(), request.userId())) {
       throw new DuplicateReviewException(
           "User " + request.userId() + " has already reviewed event " + request.eventId());
@@ -123,6 +132,9 @@ public class ReviewService {
   }
 
   public boolean canUserReview(UUID userId, UUID eventId) {
+    if (!ticketServiceClient.hasTicket(eventId, userId)) {
+      return false;
+    }
     return !reviewRepository.existsByEventIdAndUserId(eventId, userId);
   }
 
