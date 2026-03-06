@@ -64,7 +64,7 @@ public class AuthController {
   // Handles IllegalArgumentException and returns a 400 Bad Request response
   @ExceptionHandler(IllegalArgumentException.class)
   public ResponseEntity<String> handleBadRequest(IllegalArgumentException ex) {
-   
+    // Returns the error message as the response body
     return ResponseEntity.badRequest().body(ex.getMessage());
   }
 }
