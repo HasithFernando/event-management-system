@@ -10,5 +10,7 @@ public interface TicketRepository extends JpaRepository<Ticket, UUID> {
   List<Ticket> findByEventId(UUID eventId);
   List<Ticket> findByUserId(UUID userId);
   List<Ticket> findByEventIdAndUserId(UUID eventId, UUID userId);
+  long countByEventId(UUID eventId);
+  List<Ticket> findByEventIdAndStatus(UUID eventId, String status);
 }
 

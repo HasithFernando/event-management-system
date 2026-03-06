@@ -130,11 +130,32 @@ export const ticketApi = {
     return apiRequest<TicketItem[]>(queryString ? `/api/tickets?${queryString}` : "/api/tickets");
   },
 
+  get: (id: string) => apiRequest<TicketItem>(`/api/tickets/${id}`),
+
   purchase: (payload: { eventId: string; userId: string; price: number; quantity: number }) =>
     apiRequest<TicketItem[]>("/api/tickets", {
       method: "POST",
       body: payload
     }),
+
+  cancel: (id: string, userId: string) =>
+    apiRequest<TicketItem>(`/api/tickets/${id}/cancel?userId=${userId}`, {
+      method: "PATCH"
+    }),
+
+  delete: (id: string) =>
+    apiRequest<void>(`/api/tickets/${id}`, { method: "DELETE" }),
+
+  getByEvent: (eventId: string) =>
+    apiRequest<TicketItem[]>(`/api/tickets/event/${eventId}`),
+
+  getByUser: (userId: string) =>
+    apiRequest<TicketItem[]>(`/api/tickets/user/${userId}`),
+
+  count: () => apiRequest<number>("/api/tickets/count"),
+
+  countByEvent: (eventId: string) =>
+    apiRequest<number>(`/api/tickets/event/${eventId}/count`),
 
   /**
    * Downloads the PDF ticket (with QR code) for the given ticket ID.
