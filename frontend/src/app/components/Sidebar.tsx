@@ -1,5 +1,5 @@
 
-import { Calendar, Home, Users, Settings, LogOut, PlusCircle, Shield } from "lucide-react";
+import { Calendar, Home, Users, Settings, LogOut, PlusCircle, Shield, MessageSquare } from "lucide-react";
 import clsx from "clsx";
 
 interface SidebarProps {
@@ -14,6 +14,7 @@ export function Sidebar({ activeTab, setActiveTab, onLogout, userRole }: Sidebar
     { id: "dashboard", label: "Dashboard", icon: Home },
     { id: "events", label: "Events", icon: Calendar },
     { id: "attendees", label: "Attendees", icon: Users },
+    { id: "feedback", label: "Feedback", icon: MessageSquare },
     { id: "settings", label: "Settings", icon: Settings },
   ];
 

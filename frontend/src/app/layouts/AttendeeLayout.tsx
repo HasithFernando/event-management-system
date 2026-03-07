@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { Menu, Calendar, Compass, Ticket, User, Settings, LogOut, LayoutDashboard } from 'lucide-react';
+import { Menu, Calendar, Compass, Ticket, User, Settings, LogOut, LayoutDashboard, MessageSquare } from 'lucide-react';
 import { ProfileDropdown } from '../components/ProfileDropdown';
 import { NotificationBell } from '../components/NotificationBell';
 import { useAuth } from '../contexts/AuthContext';
@@ -18,6 +18,7 @@ export function AttendeeLayout() {
     { id: 'tickets', label: 'My Tickets', icon: Ticket, path: '/attendee/tickets' },
     { id: 'profile', label: 'Profile', icon: User, path: '/attendee/profile' },
     { id: 'settings', label: 'Settings', icon: Settings, path: '/attendee/settings' },
+    { id: 'feedback', label: 'Feedback', icon: MessageSquare, path: '/attendee/feedback' },
   ];
 
   const isActive = (path: string) => {

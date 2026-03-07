@@ -21,6 +21,7 @@ export function OrganizerLayout() {
     if (path.startsWith('/dashboard/attendees')) return 'attendees';
     if (path.startsWith('/dashboard/admin')) return 'admin';
     if (path.startsWith('/dashboard/settings')) return 'settings';
+    if (path.startsWith('/dashboard/feedback')) return 'feedback';
     return 'dashboard';
   };
 
@@ -34,6 +35,7 @@ export function OrganizerLayout() {
       attendees: '/dashboard/attendees',
       admin: '/dashboard/admin',
       settings: '/dashboard/settings',
+      feedback: '/dashboard/feedback',
     };
     navigate(routes[tab] || '/dashboard');
     setIsMobileMenuOpen(false);

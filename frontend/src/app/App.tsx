@@ -21,6 +21,7 @@ import { Settings } from './components/Settings';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { ProfilePage } from './pages/ProfilePage';
 import { NotificationList } from './components/NotificationList';
+import { FeedbackPage } from './pages/FeedbackPage';
 
 // Attendee Layout & Pages
 import { AttendeeLayout } from './layouts/AttendeeLayout';
@@ -59,6 +60,7 @@ export default function App() {
               <Route path="profile" element={<ProfilePage />} />
               <Route path="settings" element={<Settings />} />
               <Route path="notifications" element={<NotificationList />} />
+              <Route path="feedback" element={<FeedbackPage />} />
             </Route>
 
             {/* Organizer & Admin Routes */}
@@ -79,7 +81,8 @@ export default function App() {
               <Route path="settings" element={<Settings />} />
               <Route path="profile" element={<ProfilePage />} />
               <Route path="notifications" element={<NotificationList />} />
-              <Route 
+              <Route path="feedback" element={<FeedbackPage />} />
+              <Route
                 path="admin" 
                 element={
                   <ProtectedRoute requiredRole="admin">
